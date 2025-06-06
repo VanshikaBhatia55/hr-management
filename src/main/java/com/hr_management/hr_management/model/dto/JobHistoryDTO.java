@@ -2,6 +2,7 @@ package com.hr_management.hr_management.model.dto;
 
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
+import com.hr_management.hr_management.model.entity.Job;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class JobHistoryDTO {
 
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
-    private BatchProperties.Job job;
+    private Job job;
 
     @ManyToOne
     @JoinColumn(name = "department_id")
