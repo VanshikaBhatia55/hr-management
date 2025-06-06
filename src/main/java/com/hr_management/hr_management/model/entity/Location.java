@@ -29,11 +29,11 @@ public class Location {
     @Column(name = "state_province", length = 25)
     private String stateProvince;
 
-    @ManyToOne
-    @JoinColumn(name = "country_id")
-    private Country country;
-
-    @OneToMany(mappedBy = "location")
-    private List<Department> departments;
+//    @ManyToOne
+//    @JoinColumn(name = "country_id")
+//    private Country country;
+//
+//    @OneToMany(mappedBy = "location")
+//    private List<Department> departments;
 }
 
