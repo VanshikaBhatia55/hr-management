@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "departments")
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class DepartmentEntity {
+public class Department {
     @Id
     @Column(name = "department_id", nullable = false, precision = 4, scale = 0)
     private BigDecimal departmentId;

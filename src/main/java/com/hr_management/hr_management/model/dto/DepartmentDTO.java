@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepartmentDto {
+public class DepartmentDTO {
     private BigDecimal departmentId;
     private String departmentName;
     private String managerName;

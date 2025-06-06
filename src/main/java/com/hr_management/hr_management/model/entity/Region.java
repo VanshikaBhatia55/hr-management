@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Regions {
+public class Region {
     @Id
     @Column(name = "region_id", nullable = false)
     private BigDecimal regionId;

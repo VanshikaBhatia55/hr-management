@@ -1,5 +1,7 @@
 package com.hr_management.hr_management.model.dto;
 
+import com.hr_management.hr_management.model.entity.Department;
+import com.hr_management.hr_management.model.entity.Employee;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobHistoryDto {
+public class JobHistoryDTO {
     @Id
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)

@@ -11,14 +11,14 @@ import java.util.List ;
 @AllArgsConstructor
 public class Country {
     @Id
-    @Column(name= "country_id", nullable = false,  length = 4)
+    @Column(name = "country_id", nullable = false, length = 4)
     private String countryId;
 
-    @Column(name= "country_name", nullable = false, length=60)
+    @Column(name = "country_name", length = 60)
     private String countryName;
 
     @ManyToOne
-    @JoinColumn("region_id")
+    @JoinColumn(name = "region_id")
     private Region region;
 
     @OneToMany(mappedBy = "country")

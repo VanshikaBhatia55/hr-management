@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class CountryDTO {
     private String countryId;
     private String countryName;
-    private Long regionId; // assuming Region has Long id
+    private String regionName;
 }
