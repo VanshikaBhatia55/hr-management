@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class JobDTO {
     
+
     private String jobId;
     private String jobTitle;
     private BigDecimal minSalary;

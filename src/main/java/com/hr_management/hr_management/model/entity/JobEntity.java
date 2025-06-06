@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class JobEntity {
+
     @Id
     @Column(name = "job_id", nullable = false, length = 10)
     private String jobId;
