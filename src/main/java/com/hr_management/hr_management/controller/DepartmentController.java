@@ -32,4 +32,6 @@ public class DepartmentController {
         return ResponseEntity.ok(departments);
     }
 
+
+
 }

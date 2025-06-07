@@ -15,4 +15,6 @@ public class DepartmentDTO {
     private String managerName;
     private String locationCity;
 
+
+
 }

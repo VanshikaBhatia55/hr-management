@@ -35,4 +35,5 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<JobHistory> jobHistories;
 
+
 }
