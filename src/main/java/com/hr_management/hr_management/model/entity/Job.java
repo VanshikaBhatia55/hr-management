@@ -1,5 +1,6 @@
 package com.hr_management.hr_management.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +30,7 @@ public class Job {
     @Column(name = "max_salary")
     private BigDecimal maxSalary;
 
+    @JsonBackReference
     @OneToMany(mappedBy = "job")
     private List<Employee> employees;
 

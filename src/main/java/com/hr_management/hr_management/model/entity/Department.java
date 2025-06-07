@@ -1,21 +1,23 @@
 package com.hr_management.hr_management.model.entity;
 
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Table(name = "departments")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
 public class Department {
+
     @Id
     @Column(name = "department_id", nullable = false, precision = 4, scale = 0)
     private BigDecimal departmentId;
@@ -27,13 +29,16 @@ public class Department {
     @JoinColumn(name = "manager_id")
     private Employee manager;
 
+    @JsonManagedReference(value = "location-departments")
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location location;
 
+    @JsonBackReference(value = "employee-department")
     @OneToMany(mappedBy = "department")
     private List<Employee> employees;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "department")
     private List<JobHistory> jobHistories;
 }

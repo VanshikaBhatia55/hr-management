@@ -1,5 +1,6 @@
 package com.hr_management.hr_management.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,8 +13,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Location {
+
     @Id
     @Column(name = "location_id", nullable = false)
     private BigDecimal locationId;
@@ -34,7 +35,7 @@ public class Location {
     @JoinColumn(name = "country_id")
     private Country country;
 
+    @JsonBackReference(value = "location-departments")
     @OneToMany(mappedBy = "location")
     private List<Department> departments;
 }
-
