@@ -12,28 +12,27 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.List;
 
+
 @RestController
-@RequestMapping("/api/jobs")
+@RequestMapping("/api/jobs")  // Base path for job-related endpoints
 public class JobController {
 
-    JobRepository jobRepository;
+    private final JobRepository jobRepository;
+    private final JobMapper jobMapper;
 
-    JobMapper jobMapper;
-
-
-
-
-    public JobController(JobRepository jobRepository , JobMapper jobMapper) {
+    // Constructor injection
+    public JobController(JobRepository jobRepository, JobMapper jobMapper) {
         this.jobRepository = jobRepository;
         this.jobMapper = jobMapper;
     }
 
+    // Return all jobs
     @GetMapping
     public List<JobDTO> findAll() {
         List<Job> jobs = jobRepository.findAll();
-
-       return jobs.stream().map(x-> jobMapper.toJobDTO(x)).toList();
-
+        return jobs.stream()
+                .map(jobMapper::toJobDTO)
+                .toList();
     }
-
 }
+

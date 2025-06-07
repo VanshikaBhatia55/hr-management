@@ -23,11 +23,11 @@ public class RegionController {
     private RegionMapper regionMapper;
 
     @GetMapping
-    public List<RegionDTO> getAllRegions() {
-        return regionRepository.findAll()
+    public ResponseEntity<List<RegionDTO>> getAllRegions() {
+        return ResponseEntity.ok(regionRepository.findAll()
                 .stream()
                 .map(regionMapper::toDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
     @GetMapping("/{id}")
     public ResponseEntity<RegionDTO> getRegionById(@PathVariable BigDecimal id) {
