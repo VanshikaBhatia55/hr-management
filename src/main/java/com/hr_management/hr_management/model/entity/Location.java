@@ -2,6 +2,7 @@ package com.hr_management.hr_management.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.hr_management.hr_management.model.dto.CountryDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,7 +36,7 @@ public class Location {
     @JsonManagedReference(value = "country-locations")
     @ManyToOne
     @JoinColumn(name = "country_id")
-    private Countries country;
+    private Country country;
 
     @JsonBackReference(value = "location-departments")
     @OneToMany(mappedBy = "location")

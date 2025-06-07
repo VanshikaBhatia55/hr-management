@@ -25,5 +25,5 @@ public class Region {
 
     @JsonBackReference(value = "region-countries")
     @OneToMany(mappedBy = "region")
-    private List<Countries> countries;
+    private List<Country> countries;
 }
