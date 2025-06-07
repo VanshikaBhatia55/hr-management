@@ -8,22 +8,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @RestController
-@RequestMapping("/api/jobs")
+@RequestMapping("/api/jobs")  // Base path for job-related endpoints
 public class JobController {
 
     private final JobRepository jobRepository;
-
     private final JobMapper jobMapper;
 
-
-
-
-    public JobController(JobRepository jobRepository , JobMapper jobMapper) {
+    // Constructor injection
+    public JobController(JobRepository jobRepository, JobMapper jobMapper) {
         this.jobRepository = jobRepository;
         this.jobMapper = jobMapper;
     }
-
+  
     // Get the list of all jobs
      @GetMapping
      public ResponseEntity<List<JobDTO>> findAll() {
@@ -56,6 +54,7 @@ public class JobController {
                     return ResponseEntity.ok(jobMapper.toJobDTO(updatedJob));
                 })
                 .orElse(ResponseEntity.notFound().build());
-    }
 
+    }
 }
+
