@@ -8,7 +8,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
 @Entity
 @Table(name = "employees")
 @Getter
@@ -36,6 +35,7 @@ public class Employee {
     @Column(name = "hire_date", nullable = false)
     private LocalDate hireDate;
 
+    @JsonManagedReference(value = "job-employees")
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
     private Job job;

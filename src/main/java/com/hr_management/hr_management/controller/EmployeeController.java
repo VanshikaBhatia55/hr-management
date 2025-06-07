@@ -2,6 +2,7 @@ package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.model.dto.EmployeeDTO;
+import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +24,11 @@ public class EmployeeController {
     }
 
     @GetMapping("employees")
-    public List<EmployeeDTO> getAllEmployees() {
-        return employeeRepository.findAll().stream()
+    public List<Employee> getAllEmployees() {
+        /*return employeeRepository.findAll().stream()
                 .map(employeeMapper::toDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+        return employeeRepository.findAll().stream().toList();
     }
 
 }

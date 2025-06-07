@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.*;
 
 import java.time.LocalDate;
-
 @Entity
 @Table(name = "job_history")
 @Getter
@@ -15,6 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class JobHistory {
+
     @Id
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)

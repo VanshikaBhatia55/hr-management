@@ -25,6 +25,7 @@ public class Department {
     @Column(name = "department_name", nullable = false, length = 30)
     private String departmentName;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
@@ -38,7 +39,6 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Employee> employees;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "department")
     private List<JobHistory> jobHistories;
 }

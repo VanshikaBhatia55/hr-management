@@ -30,7 +30,7 @@ public class Job {
     @Column(name = "max_salary")
     private BigDecimal maxSalary;
 
-    @JsonBackReference
+    @JsonBackReference(value = "job-employees")
     @OneToMany(mappedBy = "job")
     private List<Employee> employees;
 
