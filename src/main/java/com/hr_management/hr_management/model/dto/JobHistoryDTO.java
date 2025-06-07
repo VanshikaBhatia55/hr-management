@@ -17,7 +17,13 @@ public class JobHistoryDTO {
     private Employee employee;
     private LocalDate startDate;
     private LocalDate endDate;
+  
+    @ManyToOne
+    @JoinColumn(name = "job_id", nullable = false)
     private Job job;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
     private Department department;
 
 }
