@@ -14,10 +14,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JobHistoryDTO {
-
     private Employee employee;
     private LocalDate startDate;
     private LocalDate endDate;
     private Job job;
     private Department department;
+
 }

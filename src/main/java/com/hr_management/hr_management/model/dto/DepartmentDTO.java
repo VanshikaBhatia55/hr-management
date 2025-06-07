@@ -14,4 +14,5 @@ public class DepartmentDTO {
     private String departmentName;
     private String managerName;
     private String locationCity;
+
 }

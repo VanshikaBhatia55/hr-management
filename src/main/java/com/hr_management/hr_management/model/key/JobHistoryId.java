@@ -22,4 +22,5 @@ public class JobHistoryId implements Serializable {
 
     @Column(name = "start_date")
     private LocalDate startDate;
+
 }
