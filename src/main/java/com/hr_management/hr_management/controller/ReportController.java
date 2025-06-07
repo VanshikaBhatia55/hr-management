@@ -1,7 +1,7 @@
 package com.hr_management.hr_management.controller;
 
-import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
-import com.hr_management.hr_management.model.dto.JobDistributionDTO;
+/*import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
+import com.hr_management.hr_management.model.dto.JobDistributionDTO;*/
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
@@ -32,7 +32,7 @@ public class ReportController {
     }
 
       //return List of DepartmentHeadcount
-    @GetMapping("/departments/headcount")
+   /* @GetMapping("/departments/headcount")
     public ResponseEntity<List<DepartmentHeadcountDTO>> getDepartmentsHeadCount() {
 
         // Fetch all departments from the database
@@ -75,6 +75,6 @@ public class ReportController {
                 .toList();
 
         return ResponseEntity.ok(jobDistribution);
-    }
+    }*/
 
 }

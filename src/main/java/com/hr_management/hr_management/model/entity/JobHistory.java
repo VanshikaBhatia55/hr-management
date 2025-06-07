@@ -1,11 +1,12 @@
 package com.hr_management.hr_management.model.entity;
 
+
 import com.hr_management.hr_management.model.key.JobHistoryId;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.*;
 
 import java.time.LocalDate;
-
 @Entity
 @Table(name = "job_history")
 @Getter
@@ -18,13 +19,13 @@ public class JobHistory {
     @EmbeddedId
     private JobHistoryId id;
 
-    @Column(name = "end_date", nullable = false)
-    private LocalDate endDate;
-
+    @MapsId("employeeId") // 🔥 This tells JPA to map the composite key field to this entity
     @ManyToOne
-    @MapsId("employeeId") // This matches the field name in JobHistoryId
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
+
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
 
     @ManyToOne
     @JoinColumn(name = "job_id", nullable = false)
@@ -33,6 +34,4 @@ public class JobHistory {
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
-
-
 }
