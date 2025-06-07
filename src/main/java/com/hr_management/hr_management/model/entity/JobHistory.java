@@ -1,6 +1,7 @@
 package com.hr_management.hr_management.model.entity;
 
 
+import com.hr_management.hr_management.model.key.JobHistoryId;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.*;
@@ -15,14 +16,13 @@ import java.time.LocalDate;
 @ToString
 public class JobHistory {
 
-    @Id
+    @EmbeddedId
+    private JobHistoryId id;
+
+    @MapsId("employeeId") // 🔥 This tells JPA to map the composite key field to this entity
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
-
-    @Id
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;

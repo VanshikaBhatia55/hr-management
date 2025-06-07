@@ -3,7 +3,7 @@ package com.hr_management.hr_management.mapper;
 import com.hr_management.hr_management.model.dto.LocationDTO;
 import com.hr_management.hr_management.model.entity.Location;
 import org.springframework.stereotype.Component;
-import com.hr_management.hr_management.model.entity.Country;
+import com.hr_management.hr_management.model.entity.Countries;
 
 
 @Component
@@ -21,7 +21,7 @@ public class LocationMapper {
         dto.setCity(location.getCity());
 
         // Safe mapping of countryName
-        Country country = location.getCountry();
+        Countries country = location.getCountry();
         dto.setCountryName(country != null ? country.getCountryName() : null);
 
         return dto;
