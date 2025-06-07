@@ -2,18 +2,16 @@ package com.hr_management.hr_management.model.entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
 @Table(name = "departments")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = {"manager", "location", "employees", "jobHistories"})
 
 public class Department {
     @Id
@@ -36,4 +34,5 @@ public class Department {
 
     @OneToMany(mappedBy = "department")
     private List<JobHistory> jobHistories;
+
 }
