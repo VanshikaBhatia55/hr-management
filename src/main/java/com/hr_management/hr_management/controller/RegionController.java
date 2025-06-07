@@ -37,4 +37,19 @@ public class RegionController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PostMapping
+    public RegionDTO createRegion(@RequestBody RegionDTO regionDTO) {
+        Region region = regionMapper.toEntity(regionDTO);
+        return regionMapper.toDTO(regionRepository.save(region));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<RegionDTO> updateRegion(@PathVariable BigDecimal id, @RequestBody RegionDTO regionDTO) {
+        return regionRepository.findById(id).map(existingRegion -> {
+            existingRegion.setRegionName(regionDTO.getRegionName());
+            Region updated = regionRepository.save(existingRegion);
+            return ResponseEntity.ok(regionMapper.toDTO(updated));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
 }
