@@ -20,9 +20,10 @@ public class LocationMapper {
         dto.setCity(location.getCity());
 
         // Safe mapping of countryName
-        Country country = location.getCountry();
-        dto.setCountryName(country != null ? country.getCountryName() : null);
+//        Country country = location.getCountry();
+//        dto.setCountryName(country != null ? country.getCountryName() : null);
 
+        dto.setCountryName(location.getCountry());
         return dto;
     }
 }

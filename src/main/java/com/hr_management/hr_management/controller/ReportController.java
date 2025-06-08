@@ -1,71 +1,69 @@
 package com.hr_management.hr_management.controller;
 
-/*import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
-import com.hr_management.hr_management.model.dto.JobDistributionDTO;*/
+import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
+import com.hr_management.hr_management.model.dto.JobDistributionDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
+import com.hr_management.hr_management.utils.BuildResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/report")
 public class ReportController {
 
-
     private final EmployeeRepository employeeRepository;
-
     private final DepartmentRepository departmentRepository;
 
-
-    //  Constructor injection of DepartmentRepository
+    // Constructor injection
     public ReportController(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
     }
 
-      //return List of DepartmentHeadcount
-   /* @GetMapping("/departments/headcount")
-    public ResponseEntity<List<DepartmentHeadcountDTO>> getDepartmentsHeadCount() {
+    // Return List of DepartmentHeadcount
+    @GetMapping("/departments/headcount")
+    public ResponseEntity<ApiResponseDto> getDepartmentsHeadCount(HttpServletRequest request) {
 
-        // Fetch all departments from the database
+        // Fetch all departments
         List<Department> departments = departmentRepository.findAll();
 
-        // Map each department to DepartmentHeadcountDTO
+        // Map to DepartmentHeadcountDTO
         List<DepartmentHeadcountDTO> departmentHeadcountDTOList = departments.stream()
                 .map(department -> new DepartmentHeadcountDTO(
-                        department.getDepartmentId().longValue(), // Department ID as Long
-                        department.getDepartmentName(),           // Department name
-                        department.getEmployees() == null ? 0L : department.getEmployees().size() // Employee count
+                        department.getDepartmentId().longValue(),
+                        department.getDepartmentName(),
+                        department.getEmployees() == null ? 0L : department.getEmployees().size()
                 ))
                 .toList();
 
-
-        return ResponseEntity.ok(departmentHeadcountDTOList);
+        return BuildResponse.success(departmentHeadcountDTOList, "Department headcount report", request.getRequestURI());
     }
 
-
+    // Return Job distribution
     @GetMapping("/jobs/distribution")
-    public ResponseEntity<List<JobDistributionDTO>> getJobDistribution() {
+    public ResponseEntity<ApiResponseDto> getJobDistribution(HttpServletRequest request) {
 
-        // Fetch all employees from the database
+        // Fetch all employees
         List<Employee> employees = employeeRepository.findAll();
 
-        // Group employees by job title and count
+        // Group by job and count
         Map<Job, Long> jobCountMap = employees.stream()
-                .collect(java.util.stream.Collectors.groupingBy(
+                .collect(Collectors.groupingBy(
                         Employee::getJob,
-                        java.util.stream.Collectors.counting()
+                        Collectors.counting()
                 ));
 
-        // Map to DTO
+        // Map to JobDistributionDTO
         List<JobDistributionDTO> jobDistribution = jobCountMap.entrySet().stream()
                 .map(entry -> new JobDistributionDTO(
                         entry.getKey().getJobId(),
@@ -74,7 +72,6 @@ public class ReportController {
                 ))
                 .toList();
 
-        return ResponseEntity.ok(jobDistribution);
-    }*/
-
+        return BuildResponse.success(jobDistribution, "Job distribution report", request.getRequestURI());
+    }
 }

@@ -2,7 +2,6 @@ package com.hr_management.hr_management.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.hr_management.hr_management.model.dto.CountryDTO;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,14 +1,18 @@
 package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.mapper.CountryMapper;
-import com.hr_management.hr_management.model.dto.CountryDTO;
+import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.country.CountryDTO;
 import com.hr_management.hr_management.model.entity.Country;
 import com.hr_management.hr_management.repository.CountryRepository;
+import com.hr_management.hr_management.utils.BuildResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,17 +28,16 @@ public class CountryController {
 
     //     Get all countries
     @GetMapping
-    public ResponseEntity<List<CountryDTO>> findAll() {
+    public ResponseEntity<ApiResponseDto> findAll(HttpServletRequest request) {
         List<Country> countryList = countryRepo.findAll();
         List<CountryDTO> dtoList = countryList.stream()
                 .map(mapper::mapToCountryDTO)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(dtoList);  // HTTP 200 OK
+        return BuildResponse.success(dtoList, "List of all countries ", request.getRequestURI());
     }
 
     // Get country by its countryId
-
     @GetMapping("/{id}")
     public ResponseEntity<CountryDTO> findUsingId(@PathVariable("id") String countryId) {
         Country country = countryRepo.findByCountryId(countryId);

@@ -23,6 +23,7 @@ public class Region {
     @Column(name = "region_name", length = 25)
     private String regionName;
 
+
     @JsonBackReference(value = "region-countries")
     @OneToMany(mappedBy = "region")
     private List<Country> countries;

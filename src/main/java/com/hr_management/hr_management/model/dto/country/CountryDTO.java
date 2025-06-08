@@ -1,12 +1,12 @@
-package com.hr_management.hr_management.model.dto;
+package com.hr_management.hr_management.model.dto.country;
 
-import com.hr_management.hr_management.model.entity.Location;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hr_management.hr_management.model.entity.Region;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,5 +14,5 @@ import java.util.List;
 public class CountryDTO {
     private String countryId;
     private String countryName;
-    private BigDecimal region_ID;
+    private Region region;
 }
