@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.model.dto.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
+import com.hr_management.hr_management.model.entity.Employee;
+import com.hr_management.hr_management.model.entity.Location;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
@@ -47,6 +50,9 @@ class DepartmentControllerTest {
 
     private Department department;
     private DepartmentDTO departmentDTO;
+    private DepartmentResponseDTO departmentResponseDTO; // Changed from DepartmentInputDTO
+    private Location location;
+    private Employee manager;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
@@ -57,6 +63,7 @@ class DepartmentControllerTest {
 
         departmentDTO = new DepartmentDTO(BigDecimal.valueOf(10), "Administration", "Jennifer Whalen", "Seattle");
     }
+
 
     @Test
     void getAllDepartments_shouldReturnListOfDepartments() throws Exception {
@@ -162,3 +169,7 @@ class DepartmentControllerTest {
                 .andExpect(jsonPath("$.data[0].managerName", is("Jennifer Whalen")));
     }
 }
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
