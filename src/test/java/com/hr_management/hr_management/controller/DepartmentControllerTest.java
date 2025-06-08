@@ -129,4 +129,36 @@ class DepartmentControllerTest {
                 .andExpect(jsonPath("$.message", is("No departments found for location ID: " + locationId)));
     }
 
+    @Test
+    void getDepartmentsByManager_whenManagerDoesNotExist_shouldReturnNotFound() throws Exception {
+        BigDecimal managerId = BigDecimal.valueOf(240);
+        given(employeeRepository.existsById(managerId)).willReturn(false);
+
+        mockMvc.perform(get("/api/department/by_manager/{id}", managerId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Manager not found with ID: " + managerId)));
+    }
+
+    @Test
+    void getDepartmentsByManager_whenManagerExistsButNoDepartments_shouldReturnNotFound() throws Exception {
+        BigDecimal managerId = BigDecimal.valueOf(115);
+        given(employeeRepository.existsById(managerId)).willReturn(true);
+        given(departmentRepository.findDepartmentsByManager_EmployeeId(managerId)).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/department/by_manager/{id}", managerId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("No departments found for manager ID: " + managerId)));
+    }
+
+    @Test
+    void getDepartmentsByManager_whenSuccess_shouldReturnDepartments() throws Exception {
+        BigDecimal managerId = BigDecimal.valueOf(200);
+        given(employeeRepository.existsById(managerId)).willReturn(true);
+        given(departmentRepository.findDepartmentsByManager_EmployeeId(managerId)).willReturn(List.of(department));
+        given(departmentMapper.toDTO(any(Department.class))).willReturn(departmentDTO);
+
+        mockMvc.perform(get("/api/department/by_manager/{id}", managerId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].managerName", is("Jennifer Whalen")));
+    }
 }
