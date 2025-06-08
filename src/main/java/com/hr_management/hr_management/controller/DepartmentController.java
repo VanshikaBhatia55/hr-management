@@ -107,4 +107,27 @@ public class DepartmentController {
         return BuildResponse.success(departmentMapper.toDTO(savedDepartment), "Department successfully created", request.getRequestURI());
     }
 
+    @PutMapping("/{department_id}")
+    public ResponseEntity<ApiResponseDto> updateDepartment(@PathVariable("department_id") BigDecimal departmentId, @Valid @RequestBody DepartmentResponseDTO departmentResponseDTO, HttpServletRequest request) {
+        // First, find the existing department
+        Department existingDepartment = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + departmentId));
+
+        var location = locationRepository.findById(departmentResponseDTO.getLocationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + departmentResponseDTO.getLocationId()));
+
+        var manager = departmentResponseDTO.getManagerId() != null ?
+                employeeRepository.findById(departmentResponseDTO.getManagerId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Manager not found with ID: " + departmentResponseDTO.getManagerId()))
+                : null;
+
+        existingDepartment.setDepartmentName(departmentResponseDTO.getDepartmentName());
+        existingDepartment.setLocation(location);
+        existingDepartment.setManager(manager);
+
+        Department updatedDepartment = departmentRepository.save(existingDepartment);
+
+        return BuildResponse.success(departmentMapper.toDTO(updatedDepartment), "Department successfully updated", request.getRequestURI());
+    }
+
 }
