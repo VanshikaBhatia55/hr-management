@@ -69,4 +69,21 @@ public class DepartmentController {
         return BuildResponse.success(departments, "List of departments for location ID: " + locationId, request.getRequestURI());
     }
 
+    @GetMapping("/by_manager/{manager_id}")
+    public ResponseEntity<ApiResponseDto> getDepartmentsByManager(@PathVariable("manager_id") BigDecimal managerId, HttpServletRequest request) {
+        if (!employeeRepository.existsById(managerId)) {
+            throw new ResourceNotFoundException("Manager not found with ID: " + managerId);
+        }
+
+        List<DepartmentDTO> departments = departmentRepository.findDepartmentsByManager_EmployeeId(managerId).stream()
+                .map(departmentMapper::toDTO)
+                .collect(Collectors.toList());
+
+        if (departments.isEmpty()) {
+            throw new ResourceNotFoundException("No departments found for manager ID: " + managerId);
+        }
+
+        return BuildResponse.success(departments, "List of departments for manager ID: " + managerId, request.getRequestURI());
+    }
+
 }

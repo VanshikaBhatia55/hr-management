@@ -10,6 +10,6 @@ import java.util.List;
 public interface DepartmentRepository extends JpaRepository<Department, BigDecimal> {
     List<Department> findByLocationLocationId(BigDecimal locationId);
 
-    List<Department> findByManagerEmployeeId(BigDecimal managerId);
+    List<Department> findDepartmentsByManager_EmployeeId(BigDecimal managerEmployeeId);
 
 }
