@@ -4,17 +4,17 @@ import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -84,6 +84,27 @@ public class DepartmentController {
         }
 
         return BuildResponse.success(departments, "List of departments for manager ID: " + managerId, request.getRequestURI());
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponseDto> createDepartment(@Valid @RequestBody DepartmentResponseDTO departmentResponseDTO, HttpServletRequest request) {
+        var location = locationRepository.findById(departmentResponseDTO.getLocationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + departmentResponseDTO.getLocationId()));
+
+        var manager = departmentResponseDTO.getManagerId() != null ?
+                employeeRepository.findById(departmentResponseDTO.getManagerId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Manager not found with ID: " + departmentResponseDTO.getManagerId()))
+                : null;
+
+        Department department = new Department();
+        department.setDepartmentId(departmentResponseDTO.getDepartmentId());
+        department.setDepartmentName(departmentResponseDTO.getDepartmentName());
+        department.setLocation(location);
+        department.setManager(manager);
+
+        Department savedDepartment = departmentRepository.save(department);
+
+        return BuildResponse.success(departmentMapper.toDTO(savedDepartment), "Department successfully created", request.getRequestURI());
     }
 
 }
