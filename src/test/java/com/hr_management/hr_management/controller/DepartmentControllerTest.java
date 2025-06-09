@@ -15,7 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -27,41 +29,69 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DepartmentController.class)
-@SuppressWarnings("deprecation")
 class DepartmentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     //added mock implementations to the Spring application context
-    @MockBean
+    @MockitoBean
     private DepartmentRepository departmentRepository;
-    @MockBean
+    @MockitoBean
     private LocationRepository locationRepository;
-    @MockBean
+    @MockitoBean
     private EmployeeRepository employeeRepository;
-    @MockBean
+    @MockitoBean
     private DepartmentMapper departmentMapper;
 
     private Department department;
     private DepartmentDTO departmentDTO;
-    private DepartmentResponseDTO departmentResponseDTO; // Changed from DepartmentInputDTO
     private Location location;
     private Employee manager;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private DepartmentResponseDTO departmentResponseDTO;
+
+//    @BeforeEach
+//    void setUp() {
+//        department = new Department();
+//        department.setDepartmentId(BigDecimal.valueOf(10));
+//        department.setDepartmentName("Administration");
+//
+//        departmentDTO = new DepartmentDTO(BigDecimal.valueOf(10), "Administration", "Jennifer Whalen", "Seattle");
+//    }
 
     @BeforeEach
     void setUp() {
+        location = new Location();
+        location.setLocationId(BigDecimal.valueOf(1700));
+        location.setCity("Seattle");
+
+        manager = new Employee();
+        manager.setEmployeeId(BigDecimal.valueOf(200));
+        manager.setFirstName("Jennifer");
+        manager.setLastName("Whalen");
+
         department = new Department();
         department.setDepartmentId(BigDecimal.valueOf(10));
         department.setDepartmentName("Administration");
+        department.setLocation(location);
+        department.setManager(manager);
 
         departmentDTO = new DepartmentDTO(BigDecimal.valueOf(10), "Administration", "Jennifer Whalen", "Seattle");
+
+        departmentResponseDTO = new DepartmentResponseDTO();
+        departmentResponseDTO.setDepartmentId(BigDecimal.valueOf(10));
+        departmentResponseDTO.setDepartmentName("Administration");
+        departmentResponseDTO.setLocationId(BigDecimal.valueOf(1700));
+        departmentResponseDTO.setManagerId(BigDecimal.valueOf(200));
     }
 
 
@@ -103,7 +133,7 @@ class DepartmentControllerTest {
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        @Test
+    @Test
     void getDepartmentsByLocation_whenSuccess_shouldReturnDepartments() throws Exception {
         BigDecimal locationId = BigDecimal.valueOf(1700);
         given(locationRepository.existsById(locationId)).willReturn(true);
@@ -168,8 +198,51 @@ class DepartmentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].managerName", is("Jennifer Whalen")));
     }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    @Test
+    void createDepartment_whenSuccess_shouldReturnCreatedDepartment() throws Exception {
+        given(locationRepository.findById(departmentResponseDTO.getLocationId())).willReturn(Optional.of(location));
+        given(employeeRepository.findById(departmentResponseDTO.getManagerId())).willReturn(Optional.of(manager));
+        given(departmentRepository.save(any(Department.class))).willReturn(department);
+        given(departmentMapper.toDTO(department)).willReturn(departmentDTO);
+
+        mockMvc.perform(post("/api/department")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data.departmentName", is("Administration")))
+                .andExpect(jsonPath("$.message", is("Department successfully created")));
+    }
+
+
+    @Test
+    void createDepartment_whenLocationNotFound_shouldReturnNotFound() throws Exception {
+        BigDecimal invalidLocationId = BigDecimal.valueOf(9999);
+        departmentResponseDTO.setLocationId(invalidLocationId);
+        given(locationRepository.findById(invalidLocationId)).willReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/department")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Location not found with ID: " + invalidLocationId)));
+    }
+
+    @Test
+    void createDepartment_whenManagerNotFound_shouldReturnNotFound() throws Exception {
+        BigDecimal invalidManagerId = BigDecimal.valueOf(9999);
+        departmentResponseDTO.setManagerId(invalidManagerId);
+
+        given(locationRepository.findById(departmentResponseDTO.getLocationId())).willReturn(Optional.of(location));
+        given(employeeRepository.findById(invalidManagerId)).willReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/department")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Manager not found with ID: " + invalidManagerId)));
+    }
+
 }
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
