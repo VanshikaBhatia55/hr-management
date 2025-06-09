@@ -13,6 +13,7 @@ import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.JobRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -161,7 +162,7 @@ public class EmployeeController {
     // Get Employees whose salary is greater than <Amount>
     @GetMapping("employees/salary_greater_than/{amount}")
     public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(@PathVariable BigDecimal amount, HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount)
+        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount , Pageable.unpaged())
                 .stream()
                 .map(employeeMapper::toDTO)
                 .collect(Collectors.toList());

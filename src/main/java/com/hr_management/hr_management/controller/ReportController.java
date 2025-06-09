@@ -3,9 +3,8 @@ package com.hr_management.hr_management.controller;
 import com.hr_management.hr_management.mapper.ReportMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
-import com.hr_management.hr_management.model.dto.report.EmployeeFullDetailsDTO;
+import com.hr_management.hr_management.model.dto.report.*;
 import com.hr_management.hr_management.model.dto.JobDistributionDTO;
-import com.hr_management.hr_management.model.dto.report.LocationDistributionDTO;
 import com.hr_management.hr_management.model.entity.*;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
@@ -17,10 +16,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -145,6 +147,115 @@ public class ReportController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/average_salary_by_department")
+    public ResponseEntity<ApiResponseDto> getAverageSalaryByDepartment(HttpServletRequest request,
+                                                                       @RequestParam(defaultValue = "0") int page,
+                                                                       @RequestParam(defaultValue = "10") int size) {
+
+        List<Department> departments = departmentRepository.findAll(PageRequest.of(page, size)).getContent();
+
+        List<DepartmentSalaryDTO> result = departments.stream()
+                .map(dept -> {
+                    List<Employee> employees = dept.getEmployees();
+                    BigDecimal avgSalary = BigDecimal.ZERO;
+
+                    if (employees != null && !employees.isEmpty()) {
+                        avgSalary = BigDecimal.valueOf(
+                                employees.stream()
+                                        .filter(emp -> emp.getSalary() != null)
+                                        .mapToDouble(emp -> emp.getSalary().doubleValue())
+                                        .average()
+                                        .orElse(0.0)
+                        ).setScale(2, RoundingMode.HALF_UP);
+                    }
+
+                    return new DepartmentSalaryDTO(dept.getDepartmentName(), avgSalary);
+                }).toList();
+
+        return BuildResponse.success(result, "Average salary by department", request.getRequestURI());
+    }
+
+    @GetMapping("/employees_hired_after/{date}")
+    public ResponseEntity<ApiResponseDto> getEmployeesHiredAfter(HttpServletRequest request,
+                                                                 @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<EmployeeBasicDTO> result = employeeRepository.findByHireDateAfter(date, pageable).stream()
+                .map(emp -> new EmployeeBasicDTO(
+                        emp.getEmployeeId(),
+                        emp.getFirstName() + " " + emp.getLastName(),
+                        emp.getHireDate(),
+                        emp.getJob() != null ? emp.getJob().getJobTitle() : null
+                )).toList();
+
+        return BuildResponse.success(result, "Employees hired after " + date, request.getRequestURI());
+    }
+
+    @GetMapping("/employees_hired_before/{date}")
+    public ResponseEntity<ApiResponseDto> getEmployeesHiredBefore(HttpServletRequest request,
+                                                                  @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<EmployeeBasicDTO> result = employeeRepository.findByHireDateBefore(date, pageable).stream()
+                .map(emp -> new EmployeeBasicDTO(
+                        emp.getEmployeeId(),
+                        emp.getFirstName() + " " + emp.getLastName(),
+                        emp.getHireDate(),
+                        emp.getJob() != null ? emp.getJob().getJobTitle() : null
+                )).toList();
+
+        return BuildResponse.success(result, "Employees hired before " + date, request.getRequestURI());
+    }
+
+    @GetMapping("/employees_with_salary_above/{amount}")
+    public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(HttpServletRequest request,
+                                                                     @PathVariable BigDecimal amount,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        List<EmployeeBasicDTO> result = employeeRepository.findBySalaryGreaterThan(amount, pageable).stream()
+                .map(emp -> new EmployeeBasicDTO(
+                        emp.getEmployeeId(),
+                        emp.getFirstName() + " " + emp.getLastName(),
+                        emp.getHireDate(),
+                        emp.getJob() != null ? emp.getJob().getJobTitle() : null
+                )).toList();
+
+        return BuildResponse.success(result, "Employees with salary above " + amount, request.getRequestURI());
+    }
+
+    @GetMapping("/top_paid_employees/{count}")
+    public ResponseEntity<ApiResponseDto> getTopPaidEmployees(HttpServletRequest request,
+                                                              @PathVariable int count,
+                                                              @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        List<EmployeeBasicDTO> result = employeeRepository.findAllByOrderBySalaryDesc().stream()
+                .skip((long) page * size)
+                .limit(size)
+                .map(emp -> new EmployeeBasicDTO(
+                        emp.getEmployeeId(),
+                        emp.getFirstName() + " " + emp.getLastName(),
+                        emp.getHireDate(),
+                        emp.getJob() != null ? emp.getJob().getJobTitle() : null
+                )).limit(count).toList();
+
+        return BuildResponse.success(result, "Top paid employees", request.getRequestURI());
+    }
+
+    @GetMapping("/salary_expense_by_year/{year}")
+    public ResponseEntity<ApiResponseDto> getSalaryExpenseByYear(HttpServletRequest request, @PathVariable int year) {
+        LocalDate start = LocalDate.of(year, 1, 1);
+        LocalDate end = LocalDate.of(year, 12, 31);
+
+        BigDecimal total = employeeRepository.findByHireDateBetween(start, end).stream()
+                .filter(emp -> emp.getSalary() != null)
+                .map(Employee::getSalary)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return BuildResponse.success(new SalaryExpenseDTO(year, total), "Salary expense for year " + year, request.getRequestURI());
+    }
 }
 
 
