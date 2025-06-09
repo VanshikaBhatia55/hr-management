@@ -5,7 +5,6 @@ import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
 import com.hr_management.hr_management.model.dto.report.EmployeeFullDetailsDTO;
 import com.hr_management.hr_management.model.dto.JobDistributionDTO;
-import com.hr_management.hr_management.model.dto.report.EmployeeRegionDTO;
 import com.hr_management.hr_management.model.entity.*;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
@@ -123,6 +122,9 @@ public class ReportController {
                     request.getRequestURI()
                 );
     }
+
+
+
 }
 
 
