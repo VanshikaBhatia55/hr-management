@@ -16,5 +16,6 @@ public class LocationDTO {
     private String postalCode;
     private String city;
     private String stateProvince;
-    private Country countryName;
+    private String countryName;
+    private String regionName;
 }

@@ -18,12 +18,14 @@ public class LocationMapper {
         dto.setStreetAddress(location.getStreetAddress());
         dto.setPostalCode(location.getPostalCode());
         dto.setCity(location.getCity());
+        dto.setStateProvince(location.getStateProvince());
 
         // Safe mapping of countryName
 //        Country country = location.getCountry();
 //        dto.setCountryName(country != null ? country.getCountryName() : null);
 
-        dto.setCountryName(location.getCountry());
+        dto.setCountryName(location.getCountry().getCountryName());
+        dto.setRegionName(location.getCountry().getRegion().getRegionName());
         return dto;
     }
 }
