@@ -4,6 +4,7 @@ import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.RegionMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.region.RegionDTO;
+import com.hr_management.hr_management.model.entity.Country;
 import com.hr_management.hr_management.model.entity.Region;
 import com.hr_management.hr_management.repository.RegionRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
@@ -48,6 +49,19 @@ public class RegionController {
         return BuildResponse.success(regionDTO, "Region fetched successfully", request.getRequestURI());
     }
 
+    // Get all countries for a specific region ID
+    @GetMapping("/{id}/countries")
+    public ResponseEntity<ApiResponseDto> getCountriesByRegionId(@PathVariable BigDecimal id, HttpServletRequest request) {
+        Region region = regionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Region with ID " + id + " does not exist"));
+
+        List<Country> countries = region.getCountries();  // Ensure it's `Country`, not `Countries`
+
+        return BuildResponse.success(countries, "Countries under Region ID " + id, request.getRequestURI());
+    }
+
+
+
     // Create a new region
     @PostMapping
     public ResponseEntity<ApiResponseDto> createRegion(@RequestBody RegionDTO regionDTO, HttpServletRequest request) {
@@ -70,6 +84,7 @@ public class RegionController {
                     return regionRepository.save(existingRegion);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("Region with ID " + id + " does not exist"));
+
 
         RegionDTO updatedRegionDTO = regionMapper.toDTO(updatedRegion);
 
