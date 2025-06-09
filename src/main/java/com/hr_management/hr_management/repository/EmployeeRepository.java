@@ -31,12 +31,19 @@ public interface EmployeeRepository extends JpaRepository<Employee, BigDecimal> 
 
     Optional<Employee> findByFirstNameAndLastName(String firstName, String lastName);
 
-    List<Employee> findBySalaryGreaterThan(BigDecimal amount);
+    List<Employee> findBySalaryGreaterThan(BigDecimal amount , Pageable pageable);
 
     List<Employee> findBySalaryLessThan(BigDecimal amount);
 
     Page<Employee> findByDepartmentLocationCountryRegion(Region region, Pageable page);
 
-    long countByDepartmentLocation (Location location);
+    long countByDepartmentLocation(Location location);
 
+    List<Employee> findByHireDateAfter(LocalDate date , Pageable page);
+
+    List<Employee> findByHireDateBefore(LocalDate date , Pageable page);
+
+    List<Employee> findAllByOrderBySalaryDesc();
+
+    List<Employee> findByHireDateBetween(LocalDate start, LocalDate end);
 }
