@@ -5,9 +5,11 @@ import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
 import com.hr_management.hr_management.model.dto.report.EmployeeFullDetailsDTO;
 import com.hr_management.hr_management.model.dto.JobDistributionDTO;
+import com.hr_management.hr_management.model.dto.report.LocationDistributionDTO;
 import com.hr_management.hr_management.model.entity.*;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
+import com.hr_management.hr_management.repository.LocationRepository;
 import com.hr_management.hr_management.repository.RegionRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,16 +32,20 @@ public class ReportController {
     private final DepartmentRepository departmentRepository;
     private final ReportMapper reportMapper;
     private final RegionRepository regionRepository;
+    private final LocationRepository locationRepository;
 
     // Constructor injection of repositories and mapper
     public ReportController(EmployeeRepository employeeRepository,
                             DepartmentRepository departmentRepository,
                             ReportMapper reportMapper,
+                            LocationRepository locationRepository,
                             RegionRepository regionRepository) {
+
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.reportMapper = reportMapper;
         this.regionRepository = regionRepository;
+        this.locationRepository = locationRepository;
     }
 
     // Get department headcount report
@@ -124,6 +130,20 @@ public class ReportController {
     }
 
 
+    // 3. Location Distribution Report
+    @GetMapping("/location_distribution")
+    public List<LocationDistributionDTO> getLocationDistribution() {
+        return locationRepository.findAll().stream()
+                .map(location -> {
+                    long count = employeeRepository.countByDepartmentLocation(location);
+                    return new LocationDistributionDTO(
+                            location.getCity(),
+                            location.getStateProvince(),
+                            count
+                    );
+                })
+                .collect(Collectors.toList());
+    }
 
 }
 
