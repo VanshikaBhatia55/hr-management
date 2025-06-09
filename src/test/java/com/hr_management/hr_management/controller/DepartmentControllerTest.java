@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DepartmentController.class)
+@SuppressWarnings("deprecation")
 class DepartmentControllerTest {
 
     @Autowired
@@ -53,9 +55,9 @@ class DepartmentControllerTest {
 
     private Department department;
     private DepartmentDTO departmentDTO;
+    private DepartmentResponseDTO departmentResponseDTO; // Changed from DepartmentInputDTO
     private Location location;
     private Employee manager;
-    private DepartmentResponseDTO departmentResponseDTO;
 
 //    @BeforeEach
 //    void setUp() {
@@ -131,7 +133,7 @@ class DepartmentControllerTest {
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    @Test
+        @Test
     void getDepartmentsByLocation_whenSuccess_shouldReturnDepartments() throws Exception {
         BigDecimal locationId = BigDecimal.valueOf(1700);
         given(locationRepository.existsById(locationId)).willReturn(true);
