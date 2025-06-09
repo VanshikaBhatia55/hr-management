@@ -1,9 +1,6 @@
 package com.hr_management.hr_management.mapper;
 
-import com.hr_management.hr_management.model.dto.DepartmentDTO;
-import com.hr_management.hr_management.model.dto.EmployeeDTO;
-import com.hr_management.hr_management.model.dto.EmployeeDetailDTO;
-import com.hr_management.hr_management.model.dto.JobDTO;
+import com.hr_management.hr_management.model.dto.*;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
@@ -117,6 +114,15 @@ public class EmployeeMapper {
                 departmentDTO,
                 managerDTO
         );
+    }
+
+    public EmployeeJobDTO toEmployeeJobDTO(Employee employee) {
+        EmployeeJobDTO dto = new EmployeeJobDTO();
+        dto.setEmployeeId(employee.getEmployeeId());
+        dto.setFirstName(employee.getFirstName());
+        dto.setLastName(employee.getLastName());
+        dto.setSalary(employee.getSalary());
+        return dto;
     }
 
 }
