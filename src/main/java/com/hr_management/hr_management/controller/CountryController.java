@@ -65,4 +65,26 @@ public class CountryController {
 
         return ResponseEntity.ok(dtoList);  // HTTP 200 OK
     }
+
+    @PostMapping
+    public ResponseEntity<CountryDTO> save(@RequestBody CountryDTO countryDTO) {
+        Country country = new Country();
+        country.setCountryName(countryDTO.getCountryName());
+        country.setRegion(countryDTO.getRegion());
+        country.setCountryId(countryDTO.getCountryId());
+
+        return ResponseEntity.ok(mapper.mapToCountryDTO(countryRepo.save(country)));
+    }
+
+    @PutMapping("/{countryId}")
+    public ResponseEntity<CountryDTO> update(@RequestBody CountryDTO countryDTO, @PathVariable("countryId") String countryId) {
+        Country country = countryRepo.findByCountryId(countryId);
+        if (country == null) {
+            return ResponseEntity.notFound().build();
+        }
+        country.setCountryName(countryDTO.getCountryName());
+        country.setRegion(countryDTO.getRegion());
+
+        return ResponseEntity.ok(mapper.mapToCountryDTO(countryRepo.save(country)));
+    }
 }

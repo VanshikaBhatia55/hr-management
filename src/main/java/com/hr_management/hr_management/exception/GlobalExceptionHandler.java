@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
 
-
 @ControllerAdvice
 public class GlobalExceptionHandler   {
 
@@ -36,6 +35,19 @@ public class GlobalExceptionHandler   {
                 .timestamp(LocalDateTime.now())
                 .build();
         return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ApiResponseDto> handleResourceAlreadyExists(ResourceAlreadyExistsException ex,
+                                                                      HttpServletRequest request) {
+        ApiResponseDto response = ApiResponseDto.builder()
+                .data(null)
+                .message("Job with id " + ex.getMessage())
+                .status(HttpStatus.CONFLICT)
+                .timestamp(LocalDateTime.now())
+                .path(request.getRequestURI())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
 }

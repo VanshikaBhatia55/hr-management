@@ -17,7 +17,8 @@ import java.util.List;
 public class Location {
 
     @Id
-    @Column(name = "location_id", nullable = false)
+    @Column(name = "location_id")
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigDecimal locationId;
 
     @Column(name = "street_address", length = 40)

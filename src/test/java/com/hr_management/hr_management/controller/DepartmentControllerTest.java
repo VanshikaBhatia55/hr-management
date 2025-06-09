@@ -29,12 +29,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DepartmentController.class)
+@SuppressWarnings("deprecation")
 class DepartmentControllerTest {
 
     @Autowired
@@ -55,9 +55,9 @@ class DepartmentControllerTest {
 
     private Department department;
     private DepartmentDTO departmentDTO;
+    private DepartmentResponseDTO departmentResponseDTO; // Changed from DepartmentInputDTO
     private Location location;
     private Employee manager;
-    private DepartmentResponseDTO departmentResponseDTO;
 
 //    @BeforeEach
 //    void setUp() {
@@ -245,4 +245,50 @@ class DepartmentControllerTest {
                 .andExpect(jsonPath("$.message", is("Manager not found with ID: " + invalidManagerId)));
     }
 
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    @Test
+    void updateDepartment_whenSuccess_shouldReturnUpdatedDepartment() throws Exception {
+        BigDecimal departmentId = BigDecimal.valueOf(10);
+        given(departmentRepository.findById(departmentId)).willReturn(Optional.of(department));
+        given(locationRepository.findById(departmentResponseDTO.getLocationId())).willReturn(Optional.of(location));
+        given(employeeRepository.findById(departmentResponseDTO.getManagerId())).willReturn(Optional.of(manager));
+        given(departmentRepository.save(any(Department.class))).willReturn(department);
+        given(departmentMapper.toDTO(department)).willReturn(departmentDTO);
+
+        mockMvc.perform(put("/api/department/{department_id}", departmentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data.departmentName", is("Administration")))
+                .andExpect(jsonPath("$.message", is("Department successfully updated")));
+    }
+
+    @Test
+    void updateDepartment_whenDepartmentNotFound_shouldReturnNotFound() throws Exception {
+        BigDecimal invalidDepartmentId = BigDecimal.valueOf(99);
+        given(departmentRepository.findById(invalidDepartmentId)).willReturn(Optional.empty());
+
+        mockMvc.perform(put("/api/department/{department_id}", invalidDepartmentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Department not found with ID: " + invalidDepartmentId)));
+    }
+
+    @Test
+    void updateDepartment_whenNewLocationNotFound_shouldReturnNotFound() throws Exception {
+        BigDecimal departmentId = BigDecimal.valueOf(10);
+        BigDecimal invalidLocationId = BigDecimal.valueOf(9999);
+        departmentResponseDTO.setLocationId(invalidLocationId);
+
+        given(departmentRepository.findById(departmentId)).willReturn(Optional.of(department));
+        given(locationRepository.findById(invalidLocationId)).willReturn(Optional.empty());
+
+        mockMvc.perform(put("/api/department/{department_id}", departmentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Location not found with ID: " + invalidLocationId)));
+    }
 }
