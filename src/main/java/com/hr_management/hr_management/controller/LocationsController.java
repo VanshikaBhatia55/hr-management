@@ -26,7 +26,6 @@ public class LocationsController {
     @Autowired
     private LocationMapper locationMapper;
 
-    // Return all locations
     @GetMapping
     public ResponseEntity<ApiResponseDto> findAllLocations(HttpServletRequest request) {
         List<LocationDTO> locationDTOs = locationRepository.findAll().stream()
@@ -36,7 +35,6 @@ public class LocationsController {
         return BuildResponse.success(locationDTOs, "List of all Locations", request.getRequestURI());
     }
 
-    // Return location by ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponseDto> findLocationById(@PathVariable BigDecimal id, HttpServletRequest request) {
         Location location = locationRepository.findById(id)
