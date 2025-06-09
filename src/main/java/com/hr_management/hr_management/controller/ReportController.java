@@ -26,8 +26,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 @RestController
-@RequestMapping("/api/report")
+@RequestMapping("/api/reports")
 public class ReportController {
 
     private final EmployeeRepository employeeRepository;
@@ -51,7 +52,7 @@ public class ReportController {
     }
 
     // Get department headcount report
-    @GetMapping("/departments/headcount")
+    @GetMapping("/departments-headcount")
     public ResponseEntity<ApiResponseDto> getDepartmentsHeadCount(HttpServletRequest request) {
         List<Department> departments = departmentRepository.findAll();
 
@@ -70,7 +71,7 @@ public class ReportController {
     }
 
     // Get job distribution report
-    @GetMapping("/jobs/distribution")
+    @GetMapping("/jobs-distribution")
     public ResponseEntity<ApiResponseDto> getJobDistribution(HttpServletRequest request) {
         List<Employee> employees = employeeRepository.findAll();
 
@@ -91,7 +92,7 @@ public class ReportController {
     }
 
     // Get paginated employee full details with sorting
-    @GetMapping("/employees_full_details")
+    @GetMapping("employees-details")
     public Page<EmployeeFullDetailsDTO> getEmployeesFullDetails(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -107,7 +108,7 @@ public class ReportController {
     }
 
     // Get paginated employees by region with sorting
-    @GetMapping("/employees_by_region/{region_id}")
+    @GetMapping("/employees-by-region/{region_id}")
     public ResponseEntity<ApiResponseDto> getEmployeesByRegion(
             HttpServletRequest request,
             @PathVariable BigDecimal region_id,
@@ -127,13 +128,13 @@ public class ReportController {
         return BuildResponse.success(
                 employeePage.map(reportMapper::toEmployeeRegionDTO),
                 "Fetch  employee region",
-                    request.getRequestURI()
-                );
+                request.getRequestURI()
+        );
     }
 
 
     // 3. Location Distribution Report
-    @GetMapping("/location_distribution")
+    @GetMapping("/location-distribution")
     public List<LocationDistributionDTO> getLocationDistribution() {
         return locationRepository.findAll().stream()
                 .map(location -> {
@@ -147,7 +148,7 @@ public class ReportController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/average_salary_by_department")
+    @GetMapping("/departments-average-salary")
     public ResponseEntity<ApiResponseDto> getAverageSalaryByDepartment(HttpServletRequest request,
                                                                        @RequestParam(defaultValue = "0") int page,
                                                                        @RequestParam(defaultValue = "10") int size) {
@@ -175,11 +176,13 @@ public class ReportController {
         return BuildResponse.success(result, "Average salary by department", request.getRequestURI());
     }
 
-    @GetMapping("/employees_hired_after/{date}")
-    public ResponseEntity<ApiResponseDto> getEmployeesHiredAfter(HttpServletRequest request,
-                                                                 @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                                                                 @RequestParam(defaultValue = "0") int page,
-                                                                 @RequestParam(defaultValue = "10") int size) {
+    @GetMapping("/employees-hired-after")
+    public ResponseEntity<ApiResponseDto> getEmployeesHiredAfter(
+            HttpServletRequest request,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
         Pageable pageable = PageRequest.of(page, size);
         List<EmployeeBasicDTO> result = employeeRepository.findByHireDateAfter(date, pageable).stream()
                 .map(emp -> new EmployeeBasicDTO(
@@ -192,9 +195,9 @@ public class ReportController {
         return BuildResponse.success(result, "Employees hired after " + date, request.getRequestURI());
     }
 
-    @GetMapping("/employees_hired_before/{date}")
+    @GetMapping("/employees-hired-before")
     public ResponseEntity<ApiResponseDto> getEmployeesHiredBefore(HttpServletRequest request,
-                                                                  @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                  @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -209,9 +212,9 @@ public class ReportController {
         return BuildResponse.success(result, "Employees hired before " + date, request.getRequestURI());
     }
 
-    @GetMapping("/employees_with_salary_above/{amount}")
+    @GetMapping("/employees-salary-above")
     public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(HttpServletRequest request,
-                                                                     @PathVariable BigDecimal amount,
+                                                                     @RequestParam BigDecimal amount,
                                                                      @RequestParam(defaultValue = "0") int page,
                                                                      @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -226,11 +229,12 @@ public class ReportController {
         return BuildResponse.success(result, "Employees with salary above " + amount, request.getRequestURI());
     }
 
-    @GetMapping("/top_paid_employees/{count}")
-    public ResponseEntity<ApiResponseDto> getTopPaidEmployees(HttpServletRequest request,
-                                                              @PathVariable int count,
-                                                              @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "10") int size) {
+    @GetMapping("/employees-top-paid")
+    public ResponseEntity<ApiResponseDto> getTopPaidEmployees(
+            HttpServletRequest request,
+            @RequestParam int limit,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         List<EmployeeBasicDTO> result = employeeRepository.findAllByOrderBySalaryDesc().stream()
                 .skip((long) page * size)
                 .limit(size)
@@ -239,13 +243,14 @@ public class ReportController {
                         emp.getFirstName() + " " + emp.getLastName(),
                         emp.getHireDate(),
                         emp.getJob() != null ? emp.getJob().getJobTitle() : null
-                )).limit(count).toList();
+                )).limit(limit).toList();
 
         return BuildResponse.success(result, "Top paid employees", request.getRequestURI());
     }
 
-    @GetMapping("/salary_expense_by_year/{year}")
-    public ResponseEntity<ApiResponseDto> getSalaryExpenseByYear(HttpServletRequest request, @PathVariable int year) {
+    @GetMapping("/salary-expense")
+    public ResponseEntity<ApiResponseDto> getSalaryExpenseByYear( HttpServletRequest request,
+            @RequestParam int year) {
         LocalDate start = LocalDate.of(year, 1, 1);
         LocalDate end = LocalDate.of(year, 12, 31);
 
