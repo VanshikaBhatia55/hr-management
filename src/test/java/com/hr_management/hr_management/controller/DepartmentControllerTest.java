@@ -133,7 +133,7 @@ class DepartmentControllerTest {
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        @Test
+    @Test
     void getDepartmentsByLocation_whenSuccess_shouldReturnDepartments() throws Exception {
         BigDecimal locationId = BigDecimal.valueOf(1700);
         given(locationRepository.existsById(locationId)).willReturn(true);
@@ -245,24 +245,24 @@ class DepartmentControllerTest {
                 .andExpect(jsonPath("$.message", is("Manager not found with ID: " + invalidManagerId)));
     }
 
-//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-@Test
-void updateDepartment_whenSuccess_shouldReturnUpdatedDepartment() throws Exception {
-    BigDecimal departmentId = BigDecimal.valueOf(10);
-    given(departmentRepository.findById(departmentId)).willReturn(Optional.of(department));
-    given(locationRepository.findById(departmentResponseDTO.getLocationId())).willReturn(Optional.of(location));
-    given(employeeRepository.findById(departmentResponseDTO.getManagerId())).willReturn(Optional.of(manager));
-    given(departmentRepository.save(any(Department.class))).willReturn(department);
-    given(departmentMapper.toDTO(department)).willReturn(departmentDTO);
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    @Test
+    void updateDepartment_whenSuccess_shouldReturnUpdatedDepartment() throws Exception {
+        BigDecimal departmentId = BigDecimal.valueOf(10);
+        given(departmentRepository.findById(departmentId)).willReturn(Optional.of(department));
+        given(locationRepository.findById(departmentResponseDTO.getLocationId())).willReturn(Optional.of(location));
+        given(employeeRepository.findById(departmentResponseDTO.getManagerId())).willReturn(Optional.of(manager));
+        given(departmentRepository.save(any(Department.class))).willReturn(department);
+        given(departmentMapper.toDTO(department)).willReturn(departmentDTO);
 
-    mockMvc.perform(put("/api/department/{department_id}", departmentId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(departmentResponseDTO)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value("OK"))
-            .andExpect(jsonPath("$.data.departmentName", is("Administration")))
-            .andExpect(jsonPath("$.message", is("Department successfully updated")));
-}
+        mockMvc.perform(put("/api/department/{department_id}", departmentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(departmentResponseDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.data.departmentName", is("Administration")))
+                .andExpect(jsonPath("$.message", is("Department successfully updated")));
+    }
 
     @Test
     void updateDepartment_whenDepartmentNotFound_shouldReturnNotFound() throws Exception {
