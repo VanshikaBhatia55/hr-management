@@ -1,8 +1,11 @@
 package com.hr_management.hr_management.controller;
 
+import com.hr_management.hr_management.exception.ResourceAlreadyExistsException;
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
+import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.mapper.JobMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.EmployeeJobDTO;
 import com.hr_management.hr_management.model.dto.JobDTO;
 import com.hr_management.hr_management.model.entity.Job;
 import com.hr_management.hr_management.repository.JobRepository;
@@ -11,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,11 +24,13 @@ public class JobController {
 
     private final JobRepository jobRepository;
     private final JobMapper jobMapper;
+    private final EmployeeMapper employeeMapper;
 
     // Constructor injection
-    public JobController(JobRepository jobRepository, JobMapper jobMapper) {
+    public JobController(JobRepository jobRepository, JobMapper jobMapper , EmployeeMapper employeeMapper) {
         this.jobRepository = jobRepository;
         this.jobMapper = jobMapper;
+        this.employeeMapper = employeeMapper;
     }
 
     // Get the list of all jobs
@@ -65,5 +71,40 @@ public class JobController {
 
         return BuildResponse.success(updatedJobDTO, "Job updated successfully", request.getRequestURI());
     }
+
+
+    // Get list of employees in a particular salary range
+    @GetMapping("/salary_range/{min}/{max}")
+    public ResponseEntity<ApiResponseDto> getEmployeesBySalaryRange(@PathVariable("min") BigDecimal min,
+                                                                    @PathVariable("max") BigDecimal max,
+                                                                    HttpServletRequest request) {
+        List<Job> jobs = jobRepository.findByMinSalaryLessThanEqualAndMaxSalaryGreaterThanEqual(max, min);
+
+        List<EmployeeJobDTO> employees = jobs.stream()
+                .flatMap(job -> job.getEmployees().stream())
+                .map(employeeMapper::toEmployeeJobDTO)
+                .collect(Collectors.toList());
+
+        return BuildResponse.success(employees, "Employees in salary range", request.getRequestURI());
+    }
+
+
+    // create a job
+    @PostMapping
+    public ResponseEntity<ApiResponseDto> createJob(@RequestBody JobDTO jobDTO, HttpServletRequest request) {
+        if (jobRepository.existsById(jobDTO.getJobId())) {
+            throw new ResourceAlreadyExistsException("Job with id " + jobDTO.getJobId() + " already exists");
+        }
+
+        Job job = jobMapper.toJobEntity(jobDTO);
+        Job savedJob = jobRepository.save(job);
+        JobDTO savedJobDTO = jobMapper.toJobDTO(savedJob);
+
+        return BuildResponse.success(savedJobDTO, "Job created successfully", request.getRequestURI());
+    }
+
+
+
+
 
 }
