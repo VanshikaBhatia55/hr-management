@@ -1,4 +1,4 @@
-package com.hr_management.hr_management.model.dto;
+package com.hr_management.hr_management.model.dto.department;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

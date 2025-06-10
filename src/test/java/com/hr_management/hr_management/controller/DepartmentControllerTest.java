@@ -3,8 +3,8 @@ package com.hr_management.hr_management.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
-import com.hr_management.hr_management.model.dto.DepartmentDTO;
-import com.hr_management.hr_management.model.dto.DepartmentResponseDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Location;
@@ -16,11 +16,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -290,5 +293,27 @@ class DepartmentControllerTest {
                         .content(objectMapper.writeValueAsString(departmentResponseDTO)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", is("Location not found with ID: " + invalidLocationId)));
+    }
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    @Test
+    void getDepartmentCountByLocation_shouldReturnCountMap() throws Exception {
+        DepartmentRepository.DepartmentCountProjection projection1 = mock(DepartmentRepository.DepartmentCountProjection.class);
+        given(projection1.getLocationCity()).willReturn("Seattle");
+        given(projection1.getDepartmentCount()).willReturn(5L);
+
+        DepartmentRepository.DepartmentCountProjection projection2 = mock(DepartmentRepository.DepartmentCountProjection.class);
+        given(projection2.getLocationCity()).willReturn("London");
+        given(projection2.getDepartmentCount()).willReturn(3L);
+
+        List<DepartmentRepository.DepartmentCountProjection> projections = Arrays.asList(projection1, projection2);
+
+        given(departmentRepository.countDepartmentsByLocation()).willReturn(projections);
+        mockMvc.perform(get("/api/department/count_by_location"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("Department count per location"))
+                .andExpect(jsonPath("$.data.Seattle", is(5)))
+                .andExpect(jsonPath("$.data.London", is(3)));
     }
 }
