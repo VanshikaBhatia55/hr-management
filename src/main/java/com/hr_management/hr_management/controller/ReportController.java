@@ -6,6 +6,8 @@ import com.hr_management.hr_management.model.dto.department.DepartmentHeadcountD
 import com.hr_management.hr_management.model.dto.report.*;
 import com.hr_management.hr_management.model.dto.JobDistributionDTO;
 import com.hr_management.hr_management.model.entity.*;
+import com.hr_management.hr_management.model.projection.DepartmentCountProjection;
+import com.hr_management.hr_management.model.projection.DepartmentSalaryProjection;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
@@ -153,25 +155,9 @@ public class ReportController {
                                                                        @RequestParam(defaultValue = "0") int page,
                                                                        @RequestParam(defaultValue = "10") int size) {
 
-        List<Department> departments = departmentRepository.findAll(PageRequest.of(page, size)).getContent();
+        Page<DepartmentSalaryProjection> pageResult = departmentRepository.findAverageSalaryByDepartment(PageRequest.of(page, size));
 
-        List<DepartmentSalaryDTO> result = departments.stream()
-                .map(dept -> {
-                    List<Employee> employees = dept.getEmployees();
-                    BigDecimal avgSalary = BigDecimal.ZERO;
-
-                    if (employees != null && !employees.isEmpty()) {
-                        avgSalary = BigDecimal.valueOf(
-                                employees.stream()
-                                        .filter(emp -> emp.getSalary() != null)
-                                        .mapToDouble(emp -> emp.getSalary().doubleValue())
-                                        .average()
-                                        .orElse(0.0)
-                        ).setScale(2, RoundingMode.HALF_UP);
-                    }
-
-                    return new DepartmentSalaryDTO(dept.getDepartmentName(), avgSalary);
-                }).toList();
+        List<DepartmentSalaryProjection> result = pageResult.getContent();
 
         return BuildResponse.success(result, "Average salary by department", request.getRequestURI());
     }

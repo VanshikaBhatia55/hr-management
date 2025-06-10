@@ -6,6 +6,7 @@ import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.department.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
+import com.hr_management.hr_management.model.projection.DepartmentCountProjection;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
@@ -132,12 +133,12 @@ public class DepartmentController {
 
     @GetMapping("/count_by_location")
     public ResponseEntity<ApiResponseDto> getDepartmentCountByLocation(HttpServletRequest request) {
-        List<DepartmentRepository.DepartmentCountProjection> results = departmentRepository.countDepartmentsByLocation();
+        List<DepartmentCountProjection> results = departmentRepository.countDepartmentsByLocation();
 
         Map<String, Long> departmentCounts = results.stream()
                 .collect(Collectors.toMap(
-                        DepartmentRepository.DepartmentCountProjection::getLocationCity,
-                        DepartmentRepository.DepartmentCountProjection::getDepartmentCount
+                        DepartmentCountProjection::getLocationCity,
+                        DepartmentCountProjection::getDepartmentCount
                 ));
 
         return BuildResponse.success(departmentCounts, "Department count per location", request.getRequestURI());
