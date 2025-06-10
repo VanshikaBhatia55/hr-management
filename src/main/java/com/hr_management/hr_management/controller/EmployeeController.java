@@ -8,6 +8,7 @@ import com.hr_management.hr_management.model.dto.EmployeeDetailDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
+import com.hr_management.hr_management.model.projection.ManagerGroupView;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.JobRepository;
@@ -239,5 +240,14 @@ public class EmployeeController {
 
         return BuildResponse.success(null, "Employee updated successfully", request.getRequestURI());
     }
+
+    // Group By
+    @GetMapping("/group-by-manager")
+    public ResponseEntity<ApiResponseDto> getEmployeesGroupedByManager(HttpServletRequest request) {
+        List<ManagerGroupView> groupedData = employeeRepository.findEmployeesGroupedByManager();
+
+        return BuildResponse.success(groupedData, "Employees grouped", request.getRequestURI());
+    }
+
 }
 
