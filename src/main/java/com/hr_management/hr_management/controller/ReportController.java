@@ -3,7 +3,7 @@ package com.hr_management.hr_management.controller;
 import com.hr_management.hr_management.mapper.ReportMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.department.DepartmentHeadcountDTO;
-import com.hr_management.hr_management.model.dto.report.EmployeeFullDetailsDTO;
+import com.hr_management.hr_management.model.dto.report.*;
 import com.hr_management.hr_management.model.dto.JobDistributionDTO;
 import com.hr_management.hr_management.model.entity.*;
 import com.hr_management.hr_management.repository.DepartmentRepository;

@@ -143,4 +143,17 @@ public class DepartmentController {
         return BuildResponse.success(departmentCounts, "Department count per location", request.getRequestURI());
     }
 
+    @GetMapping("/unmanaged")
+    public ResponseEntity<ApiResponseDto> getUnmanagedDepartments(HttpServletRequest request) {
+        List<DepartmentDTO> departments = departmentRepository.findByManagerIsNull().stream()
+                .map(departmentMapper::toDTO)
+                .collect(Collectors.toList());
+
+        String message = departments.isEmpty()
+                ? "All departments have a manager assigned."
+                : "List of departments without a manager.";
+
+        return BuildResponse.success(departments, message, request.getRequestURI());
+    }
+
 }
