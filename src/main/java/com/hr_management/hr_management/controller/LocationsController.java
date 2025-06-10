@@ -4,7 +4,7 @@ import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.mapper.LocationMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
-import com.hr_management.hr_management.model.dto.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.LocationDTO;
 import com.hr_management.hr_management.model.dto.PostLocationDTO;
 import com.hr_management.hr_management.model.entity.Country;

@@ -25,7 +25,7 @@ public class Department {
     private String departmentName;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY , cascade = CascadeType.ALL)
     @JoinColumn(name = "manager_id")
     private Employee manager;
 

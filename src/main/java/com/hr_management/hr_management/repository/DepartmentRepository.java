@@ -23,4 +23,6 @@ public interface DepartmentRepository extends JpaRepository<Department, BigDecim
             "GROUP BY d.location.city")
     List<DepartmentCountProjection> countDepartmentsByLocation();
 
+    List<Department> findByManagerIsNull();
+
 }
