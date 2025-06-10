@@ -24,9 +24,8 @@ public interface DepartmentRepository extends JpaRepository<Department, BigDecim
     List<DepartmentCountProjection> countDepartmentsByLocation();
 
 
-
-
     List<Department> findByManagerIsNull();
+
 
     @Query("""
     SELECT d.departmentName AS departmentName, 
