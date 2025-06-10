@@ -103,6 +103,16 @@ public class JobController {
         return BuildResponse.success(savedJobDTO, "Job created successfully", request.getRequestURI());
     }
 
+    //Get job by job title
+    @GetMapping("/title/{jobTitle}")
+    public ResponseEntity<ApiResponseDto> getJobByTitle(@PathVariable("jobTitle") String jobTitle,
+                                                        HttpServletRequest request) {
+        Job job = jobRepository.findByJobTitle(jobTitle)
+                .orElseThrow(() -> new ResourceNotFoundException("Job with title '" + jobTitle + "' does not exist"));
+
+        JobDTO jobDTO = jobMapper.toJobDTO(job);
+        return BuildResponse.success(jobDTO, "Job fetched successfully by title", request.getRequestURI());
+    }
 
 
 

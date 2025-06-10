@@ -13,6 +13,7 @@ import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.JobRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -76,18 +77,7 @@ public class EmployeeController {
     }
 
     // Get employee by department
-    @GetMapping("employees/by_department/{dept_id}")
-    public ResponseEntity<ApiResponseDto> getEmployeeByDepartmentId(@PathVariable BigDecimal dept_id, HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findByDepartment_DepartmentId(dept_id).stream()
-                .map(employeeMapper::toDTO)
-                .collect(Collectors.toList());
 
-        if (data.isEmpty()) {
-            return BuildResponse.success(data, "No employees found for Department ID: " + dept_id, request.getRequestURI());
-        }
-
-        return BuildResponse.success(data, "Employees fetched by Department ID", request.getRequestURI());
-    }
     // Get employee by manager
     @GetMapping("employees/by_manager/{manager_id}")
     public ResponseEntity<ApiResponseDto> getEmployeeByManagerId(@PathVariable BigDecimal manager_id, HttpServletRequest request) {
@@ -161,7 +151,7 @@ public class EmployeeController {
     // Get Employees whose salary is greater than <Amount>
     @GetMapping("employees/salary_greater_than/{amount}")
     public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(@PathVariable BigDecimal amount, HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount)
+        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount , Pageable.unpaged())
                 .stream()
                 .map(employeeMapper::toDTO)
                 .collect(Collectors.toList());
