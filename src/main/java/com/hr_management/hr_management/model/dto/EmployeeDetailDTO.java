@@ -1,5 +1,6 @@
 package com.hr_management.hr_management.model.dto;
 
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

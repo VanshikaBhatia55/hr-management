@@ -1,6 +1,7 @@
 package com.hr_management.hr_management.mapper;
 
 import com.hr_management.hr_management.model.dto.*;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;

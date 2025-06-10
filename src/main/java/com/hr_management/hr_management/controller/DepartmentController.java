@@ -3,8 +3,8 @@ package com.hr_management.hr_management.controller;
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
-import com.hr_management.hr_management.model.dto.DepartmentDTO;
-import com.hr_management.hr_management.model.dto.DepartmentResponseDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -127,6 +128,19 @@ public class DepartmentController {
         Department updatedDepartment = departmentRepository.save(existingDepartment);
 
         return BuildResponse.success(departmentMapper.toDTO(updatedDepartment), "Department successfully updated", request.getRequestURI());
+    }
+
+    @GetMapping("/count_by_location")
+    public ResponseEntity<ApiResponseDto> getDepartmentCountByLocation(HttpServletRequest request) {
+        List<DepartmentRepository.DepartmentCountProjection> results = departmentRepository.countDepartmentsByLocation();
+
+        Map<String, Long> departmentCounts = results.stream()
+                .collect(Collectors.toMap(
+                        DepartmentRepository.DepartmentCountProjection::getLocationCity,
+                        DepartmentRepository.DepartmentCountProjection::getDepartmentCount
+                ));
+
+        return BuildResponse.success(departmentCounts, "Department count per location", request.getRequestURI());
     }
 
 }
