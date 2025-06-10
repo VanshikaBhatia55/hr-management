@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocationDTO {
+public class   LocationDTO {
     private BigDecimal locationId;
     private String streetAddress;
     private String postalCode;

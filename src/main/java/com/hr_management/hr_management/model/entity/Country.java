@@ -19,7 +19,7 @@ public class Country {
     @Column(name = "country_name", length = 60)
     private String countryName;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "region_id")
     private Region region;
 

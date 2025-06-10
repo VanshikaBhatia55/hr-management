@@ -69,18 +69,18 @@ public class LocationsController {
 
         Country inputCountry = postLocationDTO.getCountry();
 
-        // Check if country exists
-        Country country = countryRepository.findById(inputCountry.getCountryId())
-                .orElseGet(() -> {
-                    // Check if region exists
-                    if (!inputCountry.getRegion().getRegionName().isEmpty()) {
-                        regionRepository.findById(inputCountry.getRegion().getRegionId())
-                                .orElseGet(() -> regionRepository.save(inputCountry.getRegion()));
-                    }
-                    return countryRepository.save(inputCountry);
-                });
+//        // Check if country exists
+//        Country country = countryRepository.findById(inputCountry.getCountryId())
+//                .orElseGet(() -> {
+//                    // Check if region exists
+//                    if (!inputCountry.getRegion().getRegionName().isEmpty()) {
+//                        regionRepository.findById(inputCountry.getRegion().getRegionId())
+//                                .orElseGet(() -> regionRepository.save(inputCountry.getRegion()));
+//                    }
+//                    return countryRepository.save(inputCountry);
+//                });
 
-        Location location = locationMapper.toLocationEntity(postLocationDTO, country);
+        Location location = locationMapper.toLocationEntity(postLocationDTO, inputCountry);
         Location savedLocation = locationRepository.save(location);
         LocationDTO locationDTO = locationMapper.toLocationDto(savedLocation);
 
@@ -142,6 +142,8 @@ public class LocationsController {
                 request.getRequestURI());
     }
 
+
+    // Get all departments by location ID
     @GetMapping("/byLocation/{location_id}")
     public ResponseEntity<ApiResponseDto> getDepartmentsByLocation(@PathVariable("location_id") BigDecimal locationId, HttpServletRequest request) {
         if (!locationRepository.existsById(locationId)) {
@@ -158,6 +160,5 @@ public class LocationsController {
 
         return BuildResponse.success(departments, "List of departments for location ID: " + locationId, request.getRequestURI());
     }
-
 
 }
