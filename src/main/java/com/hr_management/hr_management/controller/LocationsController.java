@@ -104,7 +104,7 @@ public class LocationsController {
         existingLocation.setPostalCode(postLocationDTO.getPostalCode());
         existingLocation.setCity(postLocationDTO.getCity());
         existingLocation.setStateProvince(postLocationDTO.getStateProvince());
-        existingLocation.setCountry(existingLocation.getCountry());
+        existingLocation.setCountry(postLocationDTO.getCountry());
 
 
         Location updatedLocation = locationRepository.save(existingLocation);
