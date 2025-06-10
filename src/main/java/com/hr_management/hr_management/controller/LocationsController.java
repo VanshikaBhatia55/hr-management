@@ -1,13 +1,16 @@
 package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
+import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.mapper.LocationMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.LocationDTO;
 import com.hr_management.hr_management.model.dto.PostLocationDTO;
 import com.hr_management.hr_management.model.entity.Country;
 import com.hr_management.hr_management.model.entity.Location;
 import com.hr_management.hr_management.repository.CountryRepository;
+import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
 import com.hr_management.hr_management.repository.RegionRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
@@ -35,6 +38,12 @@ public class LocationsController {
 
     @Autowired
     private RegionRepository regionRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private DepartmentMapper departmentMapper;
 
     @GetMapping
     public ResponseEntity<ApiResponseDto> findAllLocations(HttpServletRequest request) {
@@ -131,6 +140,23 @@ public class LocationsController {
         return BuildResponse.success(locationDTOs,
                 "List of locations in state/province: " + state,
                 request.getRequestURI());
+    }
+
+    @GetMapping("/byLocation/{location_id}")
+    public ResponseEntity<ApiResponseDto> getDepartmentsByLocation(@PathVariable("location_id") BigDecimal locationId, HttpServletRequest request) {
+        if (!locationRepository.existsById(locationId)) {
+            throw new ResourceNotFoundException("Location not found with ID: " + locationId);
+        }
+
+        List<DepartmentDTO> departments = departmentRepository.findByLocationLocationId(locationId).stream()
+                .map(departmentMapper::toDTO)
+                .collect(Collectors.toList());
+
+        if (departments.isEmpty()) {
+            throw new ResourceNotFoundException("No departments found for location ID: " + locationId);
+        }
+
+        return BuildResponse.success(departments, "List of departments for location ID: " + locationId, request.getRequestURI());
     }
 
 
