@@ -77,18 +77,7 @@ public class EmployeeController {
     }
 
     // Get employee by department
-    @GetMapping("employees/by_department/{dept_id}")
-    public ResponseEntity<ApiResponseDto> getEmployeeByDepartmentId(@PathVariable BigDecimal dept_id, HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findByDepartment_DepartmentId(dept_id).stream()
-                .map(employeeMapper::toDTO)
-                .collect(Collectors.toList());
 
-        if (data.isEmpty()) {
-            return BuildResponse.success(data, "No employees found for Department ID: " + dept_id, request.getRequestURI());
-        }
-
-        return BuildResponse.success(data, "Employees fetched by Department ID", request.getRequestURI());
-    }
     // Get employee by manager
     @GetMapping("employees/by_manager/{manager_id}")
     public ResponseEntity<ApiResponseDto> getEmployeeByManagerId(@PathVariable BigDecimal manager_id, HttpServletRequest request) {
