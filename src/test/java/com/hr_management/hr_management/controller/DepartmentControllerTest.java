@@ -8,6 +8,7 @@ import com.hr_management.hr_management.model.dto.department.DepartmentResponseDT
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Location;
+import com.hr_management.hr_management.model.projection.DepartmentCountProjection;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -298,15 +300,15 @@ class DepartmentControllerTest {
 
     @Test
     void getDepartmentCountByLocation_shouldReturnCountMap() throws Exception {
-        DepartmentRepository.DepartmentCountProjection projection1 = mock(DepartmentRepository.DepartmentCountProjection.class);
+        DepartmentCountProjection projection1 = mock(DepartmentCountProjection.class);
         given(projection1.getLocationCity()).willReturn("Seattle");
         given(projection1.getDepartmentCount()).willReturn(5L);
 
-        DepartmentRepository.DepartmentCountProjection projection2 = mock(DepartmentRepository.DepartmentCountProjection.class);
+        DepartmentCountProjection projection2 = mock(DepartmentCountProjection.class);
         given(projection2.getLocationCity()).willReturn("London");
         given(projection2.getDepartmentCount()).willReturn(3L);
 
-        List<DepartmentRepository.DepartmentCountProjection> projections = Arrays.asList(projection1, projection2);
+        List<DepartmentCountProjection> projections = Arrays.asList(projection1, projection2);
 
         given(departmentRepository.countDepartmentsByLocation()).willReturn(projections);
         mockMvc.perform(get("/api/department/count_by_location"))
@@ -315,5 +317,37 @@ class DepartmentControllerTest {
                 .andExpect(jsonPath("$.message").value("Department count per location"))
                 .andExpect(jsonPath("$.data.Seattle", is(5)))
                 .andExpect(jsonPath("$.data.London", is(3)));
+    }
+//------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    @Test
+    void getUnmanagedDepartments_shouldReturnListOfDepartments() throws Exception {
+        Department unmanagedDept = new Department();
+        unmanagedDept.setDepartmentId(BigDecimal.valueOf(2260));
+        unmanagedDept.setDepartmentName("New Unmanaged Department");
+        unmanagedDept.setManager(null);
+
+        DepartmentDTO unmanagedDTO = new DepartmentDTO(unmanagedDept.getDepartmentId(), unmanagedDept.getDepartmentName(), null, "Some City");
+
+        given(departmentRepository.findByManagerIsNull()).willReturn(List.of(unmanagedDept));
+        given(departmentMapper.toDTO(unmanagedDept)).willReturn(unmanagedDTO);
+
+        mockMvc.perform(get("/api/department/unmanaged"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("List of departments without a manager."))
+                .andExpect(jsonPath("$.data", hasSize(1)))
+                .andExpect(jsonPath("$.data[0].departmentName", is("New Unmanaged Department")));
+    }
+
+    @Test
+    void getUnmanagedDepartments_whenNoneExist_shouldReturnEmptyList() throws Exception {
+        given(departmentRepository.findByManagerIsNull()).willReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/department/unmanaged"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("All departments have a manager assigned."))
+                .andExpect(jsonPath("$.data", hasSize(0)));
     }
 }
