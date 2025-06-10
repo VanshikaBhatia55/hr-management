@@ -94,17 +94,17 @@ public class LocationsController {
 
         Location existingLocation = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location with ID " + id + " not found"));
-
-
-        Country country = countryRepository.findById(postLocationDTO.getCountry().getCountryId())
-                .orElseGet(() -> countryRepository.save(postLocationDTO.getCountry()));
+//
+//
+//        Country country = countryRepository.findById(postLocationDTO.getCountry().getCountryId())
+//                .orElseGet(() -> countryRepository.save(postLocationDTO.getCountry()));
 
 
         existingLocation.setStreetAddress(postLocationDTO.getStreetAddress());
         existingLocation.setPostalCode(postLocationDTO.getPostalCode());
         existingLocation.setCity(postLocationDTO.getCity());
         existingLocation.setStateProvince(postLocationDTO.getStateProvince());
-        existingLocation.setCountry(country);
+        existingLocation.setCountry(existingLocation.getCountry());
 
 
         Location updatedLocation = locationRepository.save(existingLocation);
@@ -144,7 +144,7 @@ public class LocationsController {
 
 
     // Get all departments by location ID
-    @GetMapping("/byLocation/{location_id}")
+    @GetMapping("/departmentsByLocation/{location_id}")
     public ResponseEntity<ApiResponseDto> getDepartmentsByLocation(@PathVariable("location_id") BigDecimal locationId, HttpServletRequest request) {
         if (!locationRepository.existsById(locationId)) {
             throw new ResourceNotFoundException("Location not found with ID: " + locationId);
