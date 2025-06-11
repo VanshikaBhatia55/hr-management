@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 public class EmployeeRegionDTO {
     private BigDecimal id;
     private String fullName;
-    private String lastname;
     private String department;
     private String jobTitle;
     private String city;

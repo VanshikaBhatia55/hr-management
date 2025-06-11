@@ -20,6 +20,6 @@ public class Country {
     private String countryName;
 
     @JoinColumn(name = "region_id")
-    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     private Region region;
 }

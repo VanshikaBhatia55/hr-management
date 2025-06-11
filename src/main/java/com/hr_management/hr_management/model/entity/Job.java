@@ -30,7 +30,7 @@ public class Job {
     private BigDecimal maxSalary;
 
     @JsonBackReference(value = "job-employees")
-    @OneToMany(mappedBy = "job")
+    @OneToMany(mappedBy = "job" , fetch = FetchType.EAGER)
     private List<Employee> employees;
 
     @OneToMany(mappedBy = "job")

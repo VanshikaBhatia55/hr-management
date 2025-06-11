@@ -2,7 +2,9 @@ package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
+import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.EmployeeDTO;
 import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.department.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
@@ -13,6 +15,7 @@ import com.hr_management.hr_management.repository.LocationRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +27,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/department")
 public class DepartmentController {
+
+    @Autowired
+    private  EmployeeMapper employeeMapper;
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;

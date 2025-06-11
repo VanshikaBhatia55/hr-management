@@ -17,6 +17,8 @@ public interface DepartmentRepository extends JpaRepository<Department, BigDecim
 
     List<Department> findDepartmentsByManager_EmployeeId(BigDecimal managerEmployeeId);
 
+    List<Department> findByDepartmentName(String departmentName);
+
 
     @Query("SELECT d.location.city AS locationCity, COUNT(d) AS departmentCount " +
             "FROM Department d " +
