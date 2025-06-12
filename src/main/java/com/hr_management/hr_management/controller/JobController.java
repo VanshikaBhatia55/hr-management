@@ -7,6 +7,7 @@ import com.hr_management.hr_management.mapper.JobMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.EmployeeJobDTO;
 import com.hr_management.hr_management.model.dto.JobDTO;
+import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
 import com.hr_management.hr_management.repository.JobRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -114,7 +116,20 @@ public class JobController {
         return BuildResponse.success(jobDTO, "Job fetched successfully by title", request.getRequestURI());
     }
 
+    // list of emoployes in perticular jobs
 
+    @GetMapping("/{job_id}/employees")
+    public ResponseEntity<ApiResponseDto> getEmployeesForJob(HttpServletRequest request,@PathVariable("job_id") String jobId) {
+        Optional<Job> jobOptional = jobRepository.findById(jobId);
+        if (jobOptional.isPresent()) {
+            Job job = jobOptional.get();
+            // Accessing job.getEmployees() will trigger lazy loading if not eager
+            List<EmployeeJobDTO> employeeList = job.getEmployees().stream().map(employeeMapper::toEmployeeJobDTO).toList();
+
+            return BuildResponse.success(employeeList, "Job fetched successfully by title", request.getRequestURI());
+        }
+        return null; // Or throw an exception
+    }
 
 
 }

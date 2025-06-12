@@ -19,11 +19,7 @@ public class Country {
     @Column(name = "country_name", length = 60)
     private String countryName;
 
-    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "region_id")
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     private Region region;
-
-    @OneToMany(mappedBy = "country")
-    @JsonIgnore
-    private List<Location> locations;
 }

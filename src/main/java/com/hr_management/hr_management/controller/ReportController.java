@@ -110,17 +110,18 @@ public class ReportController {
     }
 
     // Get paginated employees by region with sorting
-    @GetMapping("/employees-by-region/{region_id}")
+    @GetMapping("/employees-by-region/{regionName}")
     public ResponseEntity<ApiResponseDto> getEmployeesByRegion(
             HttpServletRequest request,
-            @PathVariable BigDecimal region_id,
+            @PathVariable String regionName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "employeeId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        Region region = regionRepository.findById(region_id)
-                .orElseThrow(() -> new RuntimeException("Region not found"));
+        Region region = regionRepository.findByRegionName(regionName);
+
+//                .orElseThrow(() -> new RuntimeException("Region not found"));
 
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -129,7 +130,7 @@ public class ReportController {
 
         return BuildResponse.success(
                 employeePage.map(reportMapper::toEmployeeRegionDTO),
-                "Fetch  employee region",
+                "Fetch employee region",
                 request.getRequestURI()
         );
     }

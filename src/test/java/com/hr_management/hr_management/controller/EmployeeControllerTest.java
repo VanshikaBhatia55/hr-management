@@ -53,7 +53,7 @@ class EmployeeControllerTest {
         when(employeeRepository.findAll()).thenReturn(mockEmployees);
         when(employeeMapper.toDTO(any(Employee.class))).thenReturn(new EmployeeDTO());
 
-        ResponseEntity<ApiResponseDto> response = employeeController.getAllEmployees(request);
+        ResponseEntity<ApiResponseDto> response = employeeController.getAllEmployees(0,10,request);
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("List of all Employee ", response.getBody().getMessage());

@@ -1,5 +1,7 @@
 package com.hr_management.hr_management.repository;
 
+import com.hr_management.hr_management.model.dto.EmployeeByDepartmentDTO;
+import com.hr_management.hr_management.model.dto.EmployeeDTO;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Location;
 import com.hr_management.hr_management.model.entity.Region;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -55,5 +58,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, BigDecimal> 
             "FROM Employee e JOIN e.manager m " +
             "GROUP BY m.firstName, m.lastName, m.department.departmentName")
     List<ManagerGroupView> findEmployeesGroupedByManager();
+
+    Page<Employee> findByDepartmentDepartmentNameIgnoreCase(String departmentName, Pageable pageable);
 
 }

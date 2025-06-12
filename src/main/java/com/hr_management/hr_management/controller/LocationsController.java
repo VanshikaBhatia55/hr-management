@@ -70,18 +70,8 @@ public class LocationsController {
 
         Country inputCountry = postLocationDTO.getCountry();
 
-//        // Check if country exists
-//        Country country = countryRepository.findById(inputCountry.getCountryId())
-//                .orElseGet(() -> {
-//                    // Check if region exists
-//                    if (!inputCountry.getRegion().getRegionName().isEmpty()) {
-//                        regionRepository.findById(inputCountry.getRegion().getRegionId())
-//                                .orElseGet(() -> regionRepository.save(inputCountry.getRegion()));
-//                    }
-//                    return countryRepository.save(inputCountry);
-//                });
-
         Location location = locationMapper.toLocationEntity(postLocationDTO, inputCountry);
+
         Location savedLocation = locationRepository.save(location);
         LocationDTO locationDTO = locationMapper.toLocationDto(savedLocation);
 
