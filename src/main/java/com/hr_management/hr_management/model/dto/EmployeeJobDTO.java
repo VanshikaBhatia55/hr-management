@@ -14,4 +14,5 @@ public class EmployeeJobDTO {
     private String firstName;
     private String lastName;
     private BigDecimal salary;
+    private String email;
 }
