@@ -123,6 +123,7 @@ public class EmployeeMapper {
         dto.setFirstName(employee.getFirstName());
         dto.setLastName(employee.getLastName());
         dto.setSalary(employee.getSalary());
+        dto.setEmail(employee.getEmail());
         return dto;
     }
 
