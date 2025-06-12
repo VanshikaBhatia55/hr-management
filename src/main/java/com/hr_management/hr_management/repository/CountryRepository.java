@@ -15,6 +15,8 @@ public interface CountryRepository extends JpaRepository<Country, String> {
 
     public List<Country> findByRegion_RegionId(BigDecimal regionRegionId);
 
+
     @Query("SELECT c.region.regionId as regionId, COUNT(c) as countryCount FROM Country c GROUP BY c.region.regionId")
     public List<countryCountInterface> countCountriesByRegion();
+
 }
