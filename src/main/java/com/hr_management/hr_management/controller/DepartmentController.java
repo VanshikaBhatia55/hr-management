@@ -3,16 +3,16 @@ package com.hr_management.hr_management.controller;
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.department.DepartmentAddRequest;
 import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.department.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.projection.DepartmentCountProjection;
-import com.hr_management.hr_management.repository.DepartmentRepository;
-import com.hr_management.hr_management.repository.EmployeeRepository;
-import com.hr_management.hr_management.repository.LocationRepository;
+import com.hr_management.hr_management.repository.*;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +29,14 @@ public class DepartmentController {
     private final DepartmentMapper departmentMapper;
     private final LocationRepository locationRepository;
     private final EmployeeRepository employeeRepository;
+
+
+    @Autowired
+    private CountryRepository countryRepository;
+
+    @Autowired
+    private RegionRepository regionRepository;
+
 
     public DepartmentController(DepartmentRepository departmentRepository, DepartmentMapper departmentMapper, LocationRepository locationRepository, EmployeeRepository employeeRepository) {
         this.departmentRepository = departmentRepository;
@@ -50,7 +58,7 @@ public class DepartmentController {
     public ResponseEntity<ApiResponseDto> getDepartmentById(@PathVariable("department_id") BigDecimal departmentId, HttpServletRequest request) {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + departmentId));
-        return BuildResponse.success(departmentMapper.toDTO(department), "Department details retrieved", request.getRequestURI());
+        return BuildResponse.success(departmentMapper.toFrontendDTO(department), "Department details retrieved", request.getRequestURI());
     }
 
     @GetMapping("/by_location/{location_id}")
@@ -156,5 +164,62 @@ public class DepartmentController {
 
         return BuildResponse.success(departments, message, request.getRequestURI());
     }
+
+
+   // for frontend
+
+    @GetMapping("/departments")
+    public ResponseEntity<?> getDepartments(
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Department> departments;
+
+        if (location != null && !location.isEmpty()) {
+            departments = departmentRepository.findByLocation_City(location, pageable);
+            if (departments.isEmpty()) {
+                return ResponseEntity.ok("No department is there in this location.");
+            }
+        } else {
+            departments = departmentRepository.findAll(pageable).getContent();
+        }
+
+        return ResponseEntity.ok(departments);
+    }
+
+    @PostMapping("/departments")
+    public ResponseEntity<String> addDepartment(@RequestBody DepartmentAddRequest request) {
+        Region region = regionRepository.findByName(request.getRegionName())
+                .orElseGet(() -> regionRepository.save(new Region(request.getRegionName())));
+
+        Country country = countryRepository.findByName(request.getCountryName())
+                .orElseGet(() -> {
+                    Country c = new Country();
+                    c.setCountryName(request.getCountryName());
+                    c.setRegion(region);
+                    return countryRepository.save(c);
+                });
+
+        Location location = locationRepository.findByCity(request.getLocationName())
+                .orElseGet(() -> {
+                    Location l = new Location();
+                    l.setCity(request.getLocationName());
+                    l.setCountry(country);
+                    return locationRepository.save(l);
+                });
+
+        Department dept = new Department();
+        dept.setDepartmentName(request.getDepartmentName());
+        dept.setLocation(location);
+        departmentRepository.save(dept);
+
+        return ResponseEntity.ok("Department added successfully.");
+    }
+
+
+
 
 }

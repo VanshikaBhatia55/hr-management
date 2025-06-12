@@ -1,6 +1,7 @@
 package com.hr_management.hr_management.mapper;
 
 import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentForFrontendDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Location;
@@ -27,6 +28,19 @@ public class DepartmentMapper {
                 locationCity
         );
     }
+
+    public DepartmentForFrontendDTO toFrontendDTO(Department department) {
+        LocationMapper locationMapper = new LocationMapper();
+        DepartmentForFrontendDTO  dto = new DepartmentForFrontendDTO();
+        dto.setDepartmentId(department.getDepartmentId());
+        dto.setDepartmentName(department.getDepartmentName());
+        dto.setLocation(locationMapper.toLocationDto(department.getLocation()));
+        dto.setCountryName(department.getLocation().getCountry().getCountryName());
+        dto.setRegionName(department.getLocation().getCountry().getRegion().getRegionName());
+        return dto;
+    }
+
+
 
     public Department toEntity(DepartmentDTO dto, Employee manager, Location location) {
         if (dto == null) return null;

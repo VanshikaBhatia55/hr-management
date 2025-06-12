@@ -7,6 +7,7 @@ import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.LocationDTO;
 import com.hr_management.hr_management.model.dto.PostLocationDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentForFrontendDTO;
 import com.hr_management.hr_management.model.entity.Country;
 import com.hr_management.hr_management.model.entity.Location;
 import com.hr_management.hr_management.repository.CountryRepository;
@@ -150,8 +151,8 @@ public class LocationsController {
             throw new ResourceNotFoundException("Location not found with ID: " + locationId);
         }
 
-        List<DepartmentDTO> departments = departmentRepository.findByLocationLocationId(locationId).stream()
-                .map(departmentMapper::toDTO)
+        List<DepartmentForFrontendDTO> departments = departmentRepository.findByLocationLocationId(locationId).stream()
+                .map(departmentMapper::toFrontendDTO)
                 .collect(Collectors.toList());
 
         if (departments.isEmpty()) {
