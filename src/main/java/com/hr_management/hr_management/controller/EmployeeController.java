@@ -5,6 +5,7 @@ import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.EmployeeDTO;
 import com.hr_management.hr_management.model.dto.EmployeeDetailDTO;
+import com.hr_management.hr_management.model.dto.UpdateEmployeeDepartmentDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
@@ -258,6 +259,22 @@ public class EmployeeController {
         employeeRepository.save(existing);
 
         return BuildResponse.success(null, "Employee updated successfully", request.getRequestURI());
+    }
+
+    //update employe dept on based on id
+    @PutMapping("employee-dept/{empId}")
+    public ResponseEntity<ApiResponseDto> updateEmployeeeDeptId(HttpServletRequest request,
+                                                                @PathVariable BigDecimal empId,
+                                                                @RequestBody UpdateEmployeeDepartmentDTO dto){
+        Employee existing = employeeRepository.findById(empId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + empId));
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + dto.getDepartmentId()));
+
+        existing.setDepartment(department);
+        employeeRepository.save(existing);
+
+        return BuildResponse.success(null, "Employee dept updated successfully", request.getRequestURI());
     }
 
     // Group By
