@@ -1,6 +1,7 @@
 package com.hr_management.hr_management.mapper;
 
 import com.hr_management.hr_management.model.dto.*;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
@@ -47,6 +48,7 @@ public class EmployeeMapper {
         employee.setJob(job);
         employee.setDepartment(department);
         employee.setManager(manager);
+        employee.setSalary(dto.getSalary());
 
         return employee;
     }
@@ -122,6 +124,7 @@ public class EmployeeMapper {
         dto.setFirstName(employee.getFirstName());
         dto.setLastName(employee.getLastName());
         dto.setSalary(employee.getSalary());
+        dto.setEmail(employee.getEmail());
         return dto;
     }
 

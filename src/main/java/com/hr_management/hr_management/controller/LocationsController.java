@@ -1,13 +1,17 @@
 package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
+import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.mapper.LocationMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.DepartmentLocationDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.LocationDTO;
 import com.hr_management.hr_management.model.dto.PostLocationDTO;
 import com.hr_management.hr_management.model.entity.Country;
 import com.hr_management.hr_management.model.entity.Location;
 import com.hr_management.hr_management.repository.CountryRepository;
+import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
 import com.hr_management.hr_management.repository.RegionRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
@@ -36,6 +40,12 @@ public class LocationsController {
     @Autowired
     private RegionRepository regionRepository;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private DepartmentMapper departmentMapper;
+
     @GetMapping
     public ResponseEntity<ApiResponseDto> findAllLocations(HttpServletRequest request) {
         List<LocationDTO> locationDTOs = locationRepository.findAll().stream()
@@ -60,18 +70,8 @@ public class LocationsController {
 
         Country inputCountry = postLocationDTO.getCountry();
 
-        // Check if country exists
-        Country country = countryRepository.findById(inputCountry.getCountryId())
-                .orElseGet(() -> {
-                    // Check if region exists
-                    if (!inputCountry.getRegion().getRegionName().isEmpty()) {
-                        regionRepository.findById(inputCountry.getRegion().getRegionId())
-                                .orElseGet(() -> regionRepository.save(inputCountry.getRegion()));
-                    }
-                    return countryRepository.save(inputCountry);
-                });
+        Location location = locationMapper.toLocationEntity(postLocationDTO, inputCountry);
 
-        Location location = locationMapper.toLocationEntity(postLocationDTO, country);
         Location savedLocation = locationRepository.save(location);
         LocationDTO locationDTO = locationMapper.toLocationDto(savedLocation);
 
@@ -85,17 +85,17 @@ public class LocationsController {
 
         Location existingLocation = locationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Location with ID " + id + " not found"));
-
-
-        Country country = countryRepository.findById(postLocationDTO.getCountry().getCountryId())
-                .orElseGet(() -> countryRepository.save(postLocationDTO.getCountry()));
+//
+//
+//        Country country = countryRepository.findById(postLocationDTO.getCountry().getCountryId())
+//                .orElseGet(() -> countryRepository.save(postLocationDTO.getCountry()));
 
 
         existingLocation.setStreetAddress(postLocationDTO.getStreetAddress());
         existingLocation.setPostalCode(postLocationDTO.getPostalCode());
         existingLocation.setCity(postLocationDTO.getCity());
         existingLocation.setStateProvince(postLocationDTO.getStateProvince());
-        existingLocation.setCountry(country);
+        existingLocation.setCountry(postLocationDTO.getCountry());
 
 
         Location updatedLocation = locationRepository.save(existingLocation);
@@ -133,5 +133,23 @@ public class LocationsController {
                 request.getRequestURI());
     }
 
+
+    // Get all departments by location ID
+    @GetMapping("/departmentsByLocation/{location_id}")
+    public ResponseEntity<ApiResponseDto> getDepartmentsByLocation(@PathVariable("location_id") BigDecimal locationId, HttpServletRequest request) {
+        if (!locationRepository.existsById(locationId)) {
+            throw new ResourceNotFoundException("Location not found with ID: " + locationId);
+        }
+
+        List<DepartmentLocationDTO> departments = departmentRepository.findByLocationLocationId(locationId).stream()
+                .map(departmentMapper::toLocationDepartmentDTO)
+                .collect(Collectors.toList());
+
+        if (departments.isEmpty()) {
+            throw new ResourceNotFoundException("No departments found for location ID: " + locationId);
+        }
+
+        return BuildResponse.success(departments, "List of departments for location ID: " + locationId, request.getRequestURI());
+    }
 
 }

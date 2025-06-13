@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class   LocationDTO {
+public class DepartmentLocationDTO {
+    private BigDecimal departmentId;
+    private String departmentName;
     private BigDecimal locationId;
-    private String streetAddress;
-    private String postalCode;
     private String city;
-    private String stateProvince;
-    private String countryName;
-    private String regionName;
+    private String managerName;
+    private BigDecimal managerId;
 }
+

@@ -2,26 +2,40 @@ package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
+import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
-import com.hr_management.hr_management.model.dto.DepartmentDTO;
-import com.hr_management.hr_management.model.dto.DepartmentResponseDTO;
+import com.hr_management.hr_management.model.dto.EmployeeByDepartmentDTO;
+import com.hr_management.hr_management.model.dto.EmployeeDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentResponseDTO;
 import com.hr_management.hr_management.model.entity.Department;
+import com.hr_management.hr_management.model.entity.Employee;
+import com.hr_management.hr_management.model.projection.DepartmentCountProjection;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/department")
 public class DepartmentController {
+
+    @Autowired
+    private  EmployeeMapper employeeMapper;
 
     private final DepartmentRepository departmentRepository;
     private final DepartmentMapper departmentMapper;
@@ -127,6 +141,57 @@ public class DepartmentController {
         Department updatedDepartment = departmentRepository.save(existingDepartment);
 
         return BuildResponse.success(departmentMapper.toDTO(updatedDepartment), "Department successfully updated", request.getRequestURI());
+    }
+
+    @GetMapping("/count_by_location")
+    public ResponseEntity<ApiResponseDto> getDepartmentCountByLocation(HttpServletRequest request) {
+        List<DepartmentCountProjection> results = departmentRepository.countDepartmentsByLocation();
+
+        Map<String, Long> departmentCounts = results.stream()
+                .collect(Collectors.toMap(
+                        DepartmentCountProjection::getLocationCity,
+                        DepartmentCountProjection::getDepartmentCount
+                ));
+
+        return BuildResponse.success(departmentCounts, "Department count per location", request.getRequestURI());
+    }
+
+    @GetMapping("/unmanaged")
+    public ResponseEntity<ApiResponseDto> getUnmanagedDepartments(HttpServletRequest request) {
+        List<DepartmentDTO> departments = departmentRepository.findByManagerIsNull().stream()
+                .map(departmentMapper::toDTO)
+                .collect(Collectors.toList());
+
+        String message = departments.isEmpty()
+                ? "All departments have a manager assigned."
+                : "List of departments without a manager.";
+
+        return BuildResponse.success(departments, message, request.getRequestURI());
+    }
+    @GetMapping("/{departmentName}/employees")
+    public ResponseEntity<ApiResponseDto> getEmployeesByDepartmentName(
+            @PathVariable String departmentName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "employeeId") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            HttpServletRequest request) {
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Employee> employeePage = employeeRepository.findByDepartmentDepartmentNameIgnoreCase(departmentName, pageable);
+
+        Page<EmployeeDTO> dtoPage = employeePage.map(employeeMapper::toDTO);
+
+        return BuildResponse.success(
+                dtoPage,
+                "Successfully retrieved employees for department: " + departmentName,
+                request.getRequestURI()
+        );
     }
 
 }

@@ -9,4 +9,5 @@ import java.math.BigDecimal;
 
 @Repository
 public interface RegionRepository extends JpaRepository<Region, BigDecimal> {
+    Region findByRegionName(String regionName);
 }

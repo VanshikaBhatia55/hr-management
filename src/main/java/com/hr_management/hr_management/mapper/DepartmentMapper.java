@@ -1,6 +1,7 @@
 package com.hr_management.hr_management.mapper;
 
-import com.hr_management.hr_management.model.dto.DepartmentDTO;
+import com.hr_management.hr_management.model.dto.DepartmentLocationDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Location;
@@ -38,6 +39,21 @@ public class DepartmentMapper {
         department.setLocation(location);
 
         return department;
+    }
+
+    public DepartmentLocationDTO toLocationDepartmentDTO(Department dept) {
+        String managerName = (dept.getManager() != null)
+                ? dept.getManager().getFirstName() + " " + dept.getManager().getLastName()
+                : "No Manager Assigned";
+
+        return new DepartmentLocationDTO(
+                dept.getDepartmentId(),
+                dept.getDepartmentName(),
+                dept.getLocation().getLocationId(),
+                dept.getLocation().getStreetAddress(),
+                managerName,
+                dept.getManager() != null ? dept.getManager().getEmployeeId() : null
+        );
     }
 
 }

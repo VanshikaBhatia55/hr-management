@@ -19,7 +19,7 @@ public class JobHistory {
     @EmbeddedId
     private JobHistoryId id;
 
-    @MapsId("employeeId") // 🔥 This tells JPA to map the composite key field to this entity
+    @MapsId("employeeId")
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;

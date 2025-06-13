@@ -5,14 +5,18 @@ import com.hr_management.hr_management.mapper.EmployeeMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
 import com.hr_management.hr_management.model.dto.EmployeeDTO;
 import com.hr_management.hr_management.model.dto.EmployeeDetailDTO;
+import com.hr_management.hr_management.model.dto.UpdateEmployeeDepartmentDTO;
 import com.hr_management.hr_management.model.entity.Department;
 import com.hr_management.hr_management.model.entity.Employee;
 import com.hr_management.hr_management.model.entity.Job;
+import com.hr_management.hr_management.model.projection.ManagerGroupView;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.JobRepository;
 import com.hr_management.hr_management.utils.BuildResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +24,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,13 +48,28 @@ public class EmployeeController {
     }
 
     // Get all employees
-    @GetMapping("employees")
-    public ResponseEntity<ApiResponseDto> getAllEmployees(HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findAll().stream()
+    @GetMapping("/employees")
+    public ResponseEntity<ApiResponseDto> getAllEmployees(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Employee> employeePage = employeeRepository.findAll(pageable);
+
+        List<EmployeeDTO> employeeDTOs = employeePage.getContent().stream()
                 .map(employeeMapper::toDTO)
                 .collect(Collectors.toList());
-        return BuildResponse.success(data, "List of all Employee ", request.getRequestURI());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("employees", employeeDTOs);
+        response.put("currentPage", employeePage.getNumber());
+        response.put("totalItems", employeePage.getTotalElements());
+        response.put("totalPages", employeePage.getTotalPages());
+
+        return BuildResponse.success(response, "All Employee List", request.getRequestURI());
     }
+
 
     // get employee by hire date
     @GetMapping("employees/by_hire_date/{hireDate}")
@@ -72,7 +93,7 @@ public class EmployeeController {
     public ResponseEntity<ApiResponseDto> getEmployeeById(@PathVariable BigDecimal id, HttpServletRequest request) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
-        EmployeeDetailDTO data = employeeMapper.toDetailDTO(employee);
+        EmployeeDTO data = employeeMapper.toDTO(employee);
         return BuildResponse.success(data, "Employee fetched successfully", request.getRequestURI());
     }
 
@@ -89,6 +110,7 @@ public class EmployeeController {
 
         return BuildResponse.success(data, "Employees fetched by Department ID", request.getRequestURI());
     }
+
     // Get employee by manager
     @GetMapping("employees/by_manager/{manager_id}")
     public ResponseEntity<ApiResponseDto> getEmployeeByManagerId(@PathVariable BigDecimal manager_id, HttpServletRequest request) {
@@ -161,8 +183,15 @@ public class EmployeeController {
 
     // Get Employees whose salary is greater than <Amount>
     @GetMapping("employees/salary_greater_than/{amount}")
-    public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(@PathVariable BigDecimal amount, HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount , Pageable.unpaged())
+    public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(
+            @PathVariable BigDecimal amount,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request) {
+
+        Pageable pageable = PageRequest.of(page, size + 1); // +1 for next page detection
+
+        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount, pageable)
                 .stream()
                 .map(employeeMapper::toDTO)
                 .collect(Collectors.toList());
@@ -238,5 +267,30 @@ public class EmployeeController {
 
         return BuildResponse.success(null, "Employee updated successfully", request.getRequestURI());
     }
+
+    //update employe dept on based on id
+    @PutMapping("employee-dept/{empId}")
+    public ResponseEntity<ApiResponseDto> updateEmployeeeDeptId(HttpServletRequest request,
+                                                                @PathVariable BigDecimal empId,
+                                                                @RequestBody UpdateEmployeeDepartmentDTO dto){
+        Employee existing = employeeRepository.findById(empId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + empId));
+        Department department = departmentRepository.findById(dto.getDepartmentId())
+                .orElseThrow(() -> new ResourceNotFoundException("Department not found with ID: " + dto.getDepartmentId()));
+
+        existing.setDepartment(department);
+        employeeRepository.save(existing);
+
+        return BuildResponse.success(null, "Employee dept updated successfully", request.getRequestURI());
+    }
+
+    // Group By
+    @GetMapping("/group-by-manager")
+    public ResponseEntity<ApiResponseDto> getEmployeesGroupedByManager(HttpServletRequest request) {
+        List<ManagerGroupView> groupedData = employeeRepository.findEmployeesGroupedByManager();
+
+        return BuildResponse.success(groupedData, "Employees grouped", request.getRequestURI());
+    }
+
 }
 

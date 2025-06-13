@@ -34,7 +34,7 @@ public class Location {
     private String stateProvince;
 
     @JsonManagedReference(value = "country-locations")
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "country_id")
     private Country country;
 

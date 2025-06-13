@@ -2,10 +2,12 @@ package com.hr_management.hr_management.controller;
 
 import com.hr_management.hr_management.mapper.ReportMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
-import com.hr_management.hr_management.model.dto.DepartmentHeadcountDTO;
+import com.hr_management.hr_management.model.dto.department.DepartmentHeadcountDTO;
 import com.hr_management.hr_management.model.dto.report.*;
 import com.hr_management.hr_management.model.dto.JobDistributionDTO;
 import com.hr_management.hr_management.model.entity.*;
+import com.hr_management.hr_management.model.projection.DepartmentCountProjection;
+import com.hr_management.hr_management.model.projection.DepartmentSalaryProjection;
 import com.hr_management.hr_management.repository.DepartmentRepository;
 import com.hr_management.hr_management.repository.EmployeeRepository;
 import com.hr_management.hr_management.repository.LocationRepository;
@@ -108,17 +110,18 @@ public class ReportController {
     }
 
     // Get paginated employees by region with sorting
-    @GetMapping("/employees-by-region/{region_id}")
+    @GetMapping("/employees-by-region/{regionName}")
     public ResponseEntity<ApiResponseDto> getEmployeesByRegion(
             HttpServletRequest request,
-            @PathVariable BigDecimal region_id,
+            @PathVariable String regionName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "employeeId") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        Region region = regionRepository.findById(region_id)
-                .orElseThrow(() -> new RuntimeException("Region not found"));
+        Region region = regionRepository.findByRegionName(regionName);
+
+//                .orElseThrow(() -> new RuntimeException("Region not found"));
 
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -127,7 +130,7 @@ public class ReportController {
 
         return BuildResponse.success(
                 employeePage.map(reportMapper::toEmployeeRegionDTO),
-                "Fetch  employee region",
+                "Fetch employee region",
                 request.getRequestURI()
         );
     }
@@ -153,25 +156,9 @@ public class ReportController {
                                                                        @RequestParam(defaultValue = "0") int page,
                                                                        @RequestParam(defaultValue = "10") int size) {
 
-        List<Department> departments = departmentRepository.findAll(PageRequest.of(page, size)).getContent();
+        Page<DepartmentSalaryProjection> pageResult = departmentRepository.findAverageSalaryByDepartment(PageRequest.of(page, size));
 
-        List<DepartmentSalaryDTO> result = departments.stream()
-                .map(dept -> {
-                    List<Employee> employees = dept.getEmployees();
-                    BigDecimal avgSalary = BigDecimal.ZERO;
-
-                    if (employees != null && !employees.isEmpty()) {
-                        avgSalary = BigDecimal.valueOf(
-                                employees.stream()
-                                        .filter(emp -> emp.getSalary() != null)
-                                        .mapToDouble(emp -> emp.getSalary().doubleValue())
-                                        .average()
-                                        .orElse(0.0)
-                        ).setScale(2, RoundingMode.HALF_UP);
-                    }
-
-                    return new DepartmentSalaryDTO(dept.getDepartmentName(), avgSalary);
-                }).toList();
+        List<DepartmentSalaryProjection> result = pageResult.getContent();
 
         return BuildResponse.success(result, "Average salary by department", request.getRequestURI());
     }
