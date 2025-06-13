@@ -4,6 +4,7 @@ import com.hr_management.hr_management.exception.ResourceNotFoundException;
 import com.hr_management.hr_management.mapper.DepartmentMapper;
 import com.hr_management.hr_management.mapper.LocationMapper;
 import com.hr_management.hr_management.model.dto.ApiResponseDto;
+import com.hr_management.hr_management.model.dto.DepartmentLocationDTO;
 import com.hr_management.hr_management.model.dto.department.DepartmentDTO;
 import com.hr_management.hr_management.model.dto.LocationDTO;
 import com.hr_management.hr_management.model.dto.PostLocationDTO;
@@ -140,8 +141,8 @@ public class LocationsController {
             throw new ResourceNotFoundException("Location not found with ID: " + locationId);
         }
 
-        List<DepartmentDTO> departments = departmentRepository.findByLocationLocationId(locationId).stream()
-                .map(departmentMapper::toDTO)
+        List<DepartmentLocationDTO> departments = departmentRepository.findByLocationLocationId(locationId).stream()
+                .map(departmentMapper::toLocationDepartmentDTO)
                 .collect(Collectors.toList());
 
         if (departments.isEmpty()) {

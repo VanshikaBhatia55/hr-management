@@ -48,6 +48,7 @@ public class EmployeeMapper {
         employee.setJob(job);
         employee.setDepartment(department);
         employee.setManager(manager);
+        employee.setSalary(dto.getSalary());
 
         return employee;
     }

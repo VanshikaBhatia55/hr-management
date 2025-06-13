@@ -93,7 +93,7 @@ public class EmployeeController {
     public ResponseEntity<ApiResponseDto> getEmployeeById(@PathVariable BigDecimal id, HttpServletRequest request) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with ID: " + id));
-        EmployeeDetailDTO data = employeeMapper.toDetailDTO(employee);
+        EmployeeDTO data = employeeMapper.toDTO(employee);
         return BuildResponse.success(data, "Employee fetched successfully", request.getRequestURI());
     }
 
@@ -183,8 +183,15 @@ public class EmployeeController {
 
     // Get Employees whose salary is greater than <Amount>
     @GetMapping("employees/salary_greater_than/{amount}")
-    public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(@PathVariable BigDecimal amount, HttpServletRequest request) {
-        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount , Pageable.unpaged())
+    public ResponseEntity<ApiResponseDto> getEmployeesWithHighSalary(
+            @PathVariable BigDecimal amount,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request) {
+
+        Pageable pageable = PageRequest.of(page, size + 1); // +1 for next page detection
+
+        List<EmployeeDTO> data = employeeRepository.findBySalaryGreaterThan(amount, pageable)
                 .stream()
                 .map(employeeMapper::toDTO)
                 .collect(Collectors.toList());
